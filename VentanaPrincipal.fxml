@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+
+<Pane fx:id="cuadroPrincipal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Interfaz.ControladorVentanaPrincipal">
+   <children>
+      <ImageView fx:id="imagenFondo" fitHeight="500.0" fitWidth="650.0" layoutX="-11.0" layoutY="-5.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@Imagenes/puzzle.jpg" />
+         </image></ImageView>
+      <Button fx:id="botonPrincipal" layoutX="-22.0" layoutY="-19.0" mnemonicParsing="false" opacity="0.0" prefHeight="519.0" prefWidth="681.0" />
+      <Label fx:id="labelInstruccion" layoutX="14.0" layoutY="-46.0" prefHeight="223.0" prefWidth="413.0" text="Haga clic en cualquier lado para comenzar">
+         <font>
+            <Font name="Bernard MT Condensed" size="36.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>
