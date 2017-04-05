@@ -42,7 +42,7 @@ public class ControladorVentanaPrincipal implements Initializable {
                 Stage escenario = new Stage();
                 FXMLLoader loader = new FXMLLoader();
                 Parent root = loader.load(getClass().getResource("VentanaJuegoKakuro.fxml").openStream());
-               // ControladorVentanaJuegoKakuro controladorJuego = loader.getController();
+              //  ControladorVentanaJuegoKakuro controladorJuego = loader.getController();
               //  controladorJuego.generarTabla();
                 escenario.setScene(new Scene(root,600,400));
                 escenario.setTitle("Kakuro");
@@ -51,6 +51,7 @@ public class ControladorVentanaPrincipal implements Initializable {
                 escenarioActual.close();
 
                 escenario.show();
+
 
             }catch(Exception e){
                 e.printStackTrace();

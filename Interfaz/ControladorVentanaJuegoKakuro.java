@@ -31,11 +31,14 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         for(int i=0;i<14;i++){
             for(int j=0;j<14;j++){
                 Button botonJuego = new Button();
-                botonJuego.setMaxSize(60,40);
-                matrizJuego.add(botonJuego,i,j,1,1); //
+                botonJuego.setMaxSize(80,80);
+                botonJuego.setDisable(true);
+                matrizJuego.add(botonJuego,i,j,1,1);// i = columna, j=fila
 
             }
         }
+        generarTablero();
+
 
     }
 
@@ -52,6 +55,38 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             filaMatriz.setMaxHeight(USE_COMPUTED_SIZE);
         }
 
+    }
+
+    public void generarTablero(){
+
+        for(int fila = 0; fila<14;fila++){
+
+            Button botonTablero = (Button)buscarNodo(fila,0);
+            Button botonTablero2= (Button)buscarNodo(0,fila);
+
+            botonTablero.setStyle("-fx-base: #000000;");
+            botonTablero2.setStyle("-fx-base: #000000;");
+
+        }
+
+
+    }
+
+    public Node buscarNodo(int fila, int columna) {
+
+        System.out.println("Usando fila: " +fila+" usando columna: " + columna);
+
+        for (Node node : matrizJuego.getChildren()) {
+            try {
+                if (matrizJuego.getRowIndex(node).intValue() == fila && matrizJuego.getColumnIndex(node).intValue() == columna)
+                    return node;
+
+            } catch (Exception e) {
+                System.out.println("Nodo nulo fantasma");
+            }
+        }
+
+        return null;
     }
 
 }
