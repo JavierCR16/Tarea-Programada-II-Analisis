@@ -44,7 +44,7 @@ public class ControladorVentanaPrincipal implements Initializable {
                 Parent root = loader.load(getClass().getResource("VentanaJuegoKakuro.fxml").openStream());
               //  ControladorVentanaJuegoKakuro controladorJuego = loader.getController();
               //  controladorJuego.generarTabla();
-                escenario.setScene(new Scene(root,600,400));
+                escenario.setScene(new Scene(root,1000,780));
                 escenario.setTitle("Kakuro");
                 hiloInicio.stop =true;
                 Stage escenarioActual = (Stage)botonPrincipal.getScene().getWindow();
