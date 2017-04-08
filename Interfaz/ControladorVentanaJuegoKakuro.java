@@ -31,8 +31,19 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             for(int j=0;j<14;j++){
                 Button botonJuego = new Button();
                 botonJuego.setMaxSize(80,80);
-                botonJuego.setDisable(true);
-                botonJuego.setBorder(Border.EMPTY);
+                 botonJuego.setOnMouseEntered(event -> {
+
+                     //botonJuego.setText("Profe \n playo");
+                    //if(botonJuego.getStyle().equals("-fx-base: #000000;"))
+                     //   botonJuego.setStyle("-fx-focus-color: transparent; -fx-opacity: 1; -fx-base: #000000;  ");
+
+                   // else{
+                     System.out.println(botonJuego.getStyle());
+                   //  }
+
+
+                 });
+
                 matrizJuego.add(botonJuego,i,j,1,1);// i = columna, j=fila
 
             }
@@ -80,9 +91,12 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int fila;
         int columna;
 
-        while(contador<randomNegros){
-            fila = rand.nextInt(13-1+1)+1;
-            columna = rand.nextInt(13-1+1)+1;
+        while(contarCuadros()<=82){
+            int cuadrosNegros = contarCuadros();
+            System.out.println("Cuadros negros en el tablero: "+cuadrosNegros);
+
+            fila = rand.nextInt(13-0+1)+0;
+            columna = rand.nextInt(13-0+1)+0;
             Button botonJuego = (Button) buscarNodo(fila, columna);
 
            /* if(enPenultimas(fila,columna)) {
@@ -126,123 +140,116 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
             }*/
 
-           if(enUltimas(fila,columna) & fila==13){
+           if (enPrimeras(fila,columna) & fila==0){
+
                if(!masde1menos10Derecha(fila,columna)){
-                   int desplazamiento = rand.nextInt(10-1+1) +1;
-                   if(columna+desplazamiento >13)
-                       desplazamiento= columna+desplazamiento-13;
+                   int desplazamiento = desplazamiento(columna);
 
                    Button botonAyuda = (Button) buscarNodo(fila,desplazamiento);
 
-                   botonJuego.setStyle("-fx-opacity: 1;");
-                   botonJuego.setStyle("-fx-base: #000000;");
-                   botonAyuda.setStyle("-fx-opacity: 1;");
-                   botonAyuda.setStyle("-fx-base: #000000;");
+                   setEstilo(botonAyuda);
                }
-               else{
-                   botonJuego.setStyle("-fx-opacity: 1;");
-                   botonJuego.setStyle("-fx-base: #000000;");
+           }
+
+           else if (enPrimeras(fila,columna) & columna==0){
+               if(!masde1menos10Abajo(fila,columna)){
+                   int desplazamiento = desplazamiento(fila);
+
+                   Button botonAyuda = (Button) buscarNodo(desplazamiento,columna);
+                   setEstilo(botonAyuda);
                }
+           }
+
+          else if(enUltimas(fila,columna) & fila==13){
+
+              if(!masde1menos10Derecha(fila,columna)){
+                  int desplazamiento = desplazamiento(columna);
+
+                  Button botonAyuda = (Button) buscarNodo(fila,desplazamiento);
+
+                  setEstilo(botonJuego);
+                  setEstilo(botonAyuda);
+              }
+              else{
+                  setEstilo(botonJuego);
+              }
 
            }
 
            else if(enUltimas(fila,columna) & columna==13){
+
                if(!masde1menos10Abajo(fila,columna)){
-                   int desplazamiento = rand.nextInt(10-1+1) +1;
-                   if(fila+desplazamiento >13)
-                       desplazamiento= columna+desplazamiento-13;
+                   int desplazamiento = desplazamiento(fila) ;
 
-                   Button botonAyuda = (Button) buscarNodo(desplazamiento,columna);
-
-                   botonJuego.setStyle("-fx-opacity: 1;");
-                   botonJuego.setStyle("-fx-base: #000000;");
-                   botonAyuda.setStyle("-fx-opacity: 1;");
-                   botonAyuda.setStyle("-fx-base: #000000;");;
+                    Button botonAyuda = (Button) buscarNodo(desplazamiento,columna);
+                    setEstilo(botonJuego);
+                    setEstilo(botonAyuda);
                }
                else{
-                   botonJuego.setStyle("-fx-opacity: 1;");
-                   botonJuego.setStyle("-fx-base: #000000;");
+                   setEstilo(botonJuego);
+
                }
 
            }
 
            else if(masde1menos10Derecha(fila,columna) & masde1menos10Abajo(fila,columna)){
-               botonJuego.setStyle("-fx-opacity: 1;");
-               botonJuego.setStyle("-fx-base: #000000;");
-
+               setEstilo(botonJuego);
            }
 
            else if(!masde1menos10Derecha(fila,columna) & !masde1menos10Abajo(fila,columna)){
 
-               int desplazamientoFila = rand.nextInt(10-1+1) +1;
-               int desplazamientoColumna = rand.nextInt(10-1+1) +1;
-               if(columna+desplazamientoColumna >13)
-                   desplazamientoColumna= columna+desplazamientoColumna-13;
-               if(fila+desplazamientoFila>13)
-                   desplazamientoFila= fila+desplazamientoFila-13;
+               int desplazamientoFila = desplazamiento(fila);
+               int desplazamientoColumna = desplazamiento(columna);
 
 
                Button botonFila = (Button) buscarNodo(fila,desplazamientoColumna);
                Button botonColumna = (Button)buscarNodo(desplazamientoFila,columna);
 
-               botonJuego.setStyle("-fx-opacity: 1;");
-               botonJuego.setStyle("-fx-base: #000000;");
-               botonFila.setStyle("-fx-opacity: 1;");
-               botonFila.setStyle("-fx-base: #000000;");
-               botonColumna.setStyle("-fx-opacity: 1;");
-               botonColumna.setStyle("-fx-base: #000000;");
+               setEstilo(botonJuego);
+               setEstilo(botonFila);
+               setEstilo(botonColumna);
 
            }
            else if(masde1menos10Derecha(fila,columna) & !masde1menos10Abajo(fila,columna)){
-               int desplazamientoAbajo = rand.nextInt(10-1+1) +1;
-               if(fila+desplazamientoAbajo >13)
-                   desplazamientoAbajo= columna+desplazamientoAbajo-13;
+               int desplazamientoAbajo = desplazamiento(fila);
 
                Button botonAyuda = (Button) buscarNodo(desplazamientoAbajo,columna);
 
-               botonJuego.setStyle("-fx-opacity: 1;");
-               botonJuego.setStyle("-fx-base: #000000;");
-               botonAyuda.setStyle("-fx-opacity: 1;");
-               botonAyuda.setStyle("-fx-base: #000000;");;
-
+               setEstilo(botonJuego);
+               setEstilo(botonAyuda);
 
            }
-
            else{
 
-               int desplazamiento = rand.nextInt(10-1+1) +1;
-               if(columna+desplazamiento >13)
-                   desplazamiento= columna+desplazamiento-13;
-
+               int desplazamiento = desplazamiento(columna);
                Button botonAyuda = (Button) buscarNodo(fila,desplazamiento);
 
-               botonJuego.setStyle("-fx-opacity: 1;");
-               botonJuego.setStyle("-fx-base: #000000;");
-               botonAyuda.setStyle("-fx-opacity: 1;");
-               botonAyuda.setStyle("-fx-base: #000000;");
-
-
+               setEstilo(botonJuego);
+               setEstilo(botonAyuda);
 
            }
-           /*
-            if(masde1menos10Derecha(fila,columna) | masde1menos10Abajo(fila,columna)) {
-                Button botonMatriz = (Button) buscarNodo(fila, columna);
-                botonMatriz.setStyle("-fx-opacity: 1;");
-                botonMatriz.setStyle("-fx-base: #000000;");
-            }*/
-
-            contador+=1;
-
         }
-
-
-
-
-
+        establecerNumeros();
     }
 
     public boolean enPenultimas(int fila, int columna){
         return fila==12 | columna ==12;
+    }
+
+    public int contarCuadros(){
+
+        int contador=0;
+
+        for(int i=1;i<14;i++){
+            for(int j=1;j<14;j++){
+                Button botonAuxiliar = (Button)buscarNodo(i,j);
+                if(botonAuxiliar.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                    contador+=1;
+
+            }
+        }
+
+        return contador;
     }
 
     public boolean enUltimas(int fila, int columna){
@@ -251,7 +258,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     public Node buscarNodo(int fila, int columna) {
 
-        System.out.println("Usando fila: " +fila+" usando columna: " + columna);
+     //   System.out.println("Usando fila: " +fila+" usando columna: " + columna);
 
         for (Node node : matrizJuego.getChildren()) {
             try {
@@ -259,7 +266,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     return node;
 
             } catch (Exception e) {
-                System.out.println("Nodo nulo fantasma");
+           //     System.out.println("Nodo nulo fantasma");
             }
         }
 
@@ -284,13 +291,131 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int contador=1;
         for (int i=fila+1;i<14;i++){
             Button botonAux =(Button)buscarNodo(fila,columna);
-            if(botonAux.getStyle().equals("-fx-base: #000000;"))
+            if(botonAux.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))//-fx-base: #000000;
                 break;
             contador++;
         }
         if(contador >10)
-            return false; //
+            return false;
         return true;
+    }
+
+    public void setEstilo(Button boton){
+
+
+        boton.setStyle("-fx-opacity: 1; -fx-base: #000000;");
+
+
+    }
+
+    public int desplazamiento(int FILCOL){
+
+        int desplazamiento = rand.nextInt(10-1+1) +1;
+        if(FILCOL+desplazamiento >13)
+            desplazamiento= FILCOL+desplazamiento-13;
+        return desplazamiento;
+    }
+
+    public boolean enPrimeras(int fila, int columna){
+
+        return fila==0|columna==0;
+    }
+
+    public void establecerNumeros(){
+        Button botonAux = new Button();
+        int blancosDerecha=0;
+        int blancosAbajo=0;
+        int [] rangoDerecha = new int[2];
+        int [] rangoAbajo = new int[2];
+
+        for(int i=1;i<14;i++){
+            for(int j=1;j<14;j++){
+                botonAux=(Button)buscarNodo(i,j);
+                if(botonAux.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")) {
+                    if (enUltimas(i, j) & i == 13) {
+                        blancosDerecha = verificarBlancos(i, j, 1);
+                        rangoDerecha = establecerLimitesSuma(blancosDerecha, blancosAbajo, 1);
+                    } else if (enUltimas(i, j) & j == 13) {
+                        blancosAbajo = verificarBlancos(i, j, 2);
+                        rangoAbajo = establecerLimitesSuma(blancosDerecha, blancosAbajo, 2);
+                    } else {
+                        blancosDerecha = verificarBlancos(i, j, 1);
+                        blancosAbajo = verificarBlancos(i, j, 2);
+                        rangoDerecha = establecerLimitesSuma(blancosDerecha, blancosAbajo, 1);
+                        rangoAbajo = establecerLimitesSuma(blancosDerecha, blancosAbajo, 2);
+                    }
+
+                    if (blancosDerecha == 1 & blancosAbajo != 1) {
+                        botonAux = (Button) buscarNodo(i, j);
+                        botonAux.setText("\t1\n  1-9");
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    //public void
+
+    public int verificarBlancos(int fila, int columna, int modalidad){
+        int contador =0;
+
+        Button botonFinal;
+        switch (modalidad){
+            case 1:
+                //columna = columna+1;
+                while(columna!=13){ //Hacia Derecha
+                    columna++;
+                    botonFinal = (Button) buscarNodo(fila,columna);
+
+                    if(botonFinal.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                        break;
+                    contador++;
+                }
+                break;
+            case 2:
+               // fila = fila+1;
+                while(fila!=13){ //Hacia Abajo
+                    fila++;
+                    botonFinal = (Button) buscarNodo(fila,columna);
+
+                    if(botonFinal.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                        break;
+                    contador++;
+                }
+                break;
+        }
+
+        return contador;
+    }
+
+    public int[] establecerLimitesSuma(int blancosDerecha,int blancosAbajo,int modalidad){
+        int [] rango = new int[2];
+        int sumaMenor = 0;
+        int sumaMayor = 0;
+        switch(modalidad){
+
+            case 1:
+                for (int i=1;i<=blancosDerecha;i++)
+                    sumaMenor+=i;
+                rango[0]=sumaMenor;
+                for(int j=9; j> 9-blancosDerecha;j--)
+                    sumaMayor+=j;
+                rango[1]=sumaMayor;
+                break;
+            case 2:
+                for (int i=1;i<=blancosAbajo;i++)
+                    sumaMenor+=i;
+                rango[0]=sumaMenor;
+                for(int j=9; j> 9-blancosAbajo;j--)
+                    sumaMayor+=j;
+                rango[1]=sumaMayor;
+                break;
+
+        }
+
+        return rango;
     }
 
 }
