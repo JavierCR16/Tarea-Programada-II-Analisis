@@ -76,12 +76,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             Button botonTablero = (Button)buscarNodo(i,0);
             Button botonTablero2= (Button)buscarNodo(0,i);
 
-
-            botonTablero.setStyle("-fx-opacity: 1;");
-            botonTablero.setStyle("-fx-base: #000000;");
-
-            botonTablero2.setStyle("-fx-opacity: 1;");
-            botonTablero2.setStyle("-fx-base: #000000;");
+            setEstilo(botonTablero);
+            setEstilo(botonTablero2);
         }
 
 
@@ -135,27 +131,24 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     botonSiguienteFila.setStyle("-fx-opacity: 1;");
                     botonSiguienteFila.setStyle("-fx-base: #000000;");
                 }
-
-
-
             }*/
 
            if (enPrimeras(fila,columna) & fila==0){
 
-               if(!masde1menos10Derecha(fila,columna)){
-                   int desplazamiento = desplazamiento(columna);
+               if(!masde1menos10Abajo(fila,columna)){
+                   int desplazamiento = desplazamiento(fila);
 
-                   Button botonAyuda = (Button) buscarNodo(fila,desplazamiento);
+                   Button botonAyuda = (Button) buscarNodo(desplazamiento,fila);
 
                    setEstilo(botonAyuda);
                }
            }
 
-           else if (enPrimeras(fila,columna) & columna==0){
-               if(!masde1menos10Abajo(fila,columna)){
-                   int desplazamiento = desplazamiento(fila);
+           else if (enPrimeras(fila,columna) & columna==0){ //FIX THAT
+               if(!masde1menos10Derecha(fila,columna)){ //Antes abajo
+                   int desplazamiento = desplazamiento(columna);
 
-                   Button botonAyuda = (Button) buscarNodo(desplazamiento,columna);
+                   Button botonAyuda = (Button) buscarNodo(fila,desplazamiento);
                    setEstilo(botonAyuda);
                }
            }
@@ -282,8 +275,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 break;
             contador++;
         }
-        if(contador >10)
-            return false; //
+        if(contador >9)
+            return false;
         return true;
     }
 
@@ -295,7 +288,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 break;
             contador++;
         }
-        if(contador >10)
+        if(contador >9)
             return false;
         return true;
     }
@@ -310,7 +303,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     public int desplazamiento(int FILCOL){
 
-        int desplazamiento = rand.nextInt(10-1+1) +1;
+        int desplazamiento = rand.nextInt(9-1+1) +1;//VERIFICAR
         if(FILCOL+desplazamiento >13)
             desplazamiento= FILCOL+desplazamiento-13;
         return desplazamiento;
@@ -322,41 +315,75 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public void establecerNumeros(){
+        //MAE NO SÉ SI QUITANDO TODOxd Y DEJAR EL ULTIMO ELSE, HACE LO MISMO QUE TODOS LOS IF ANTERIORES, EMPEZANDO DESDE IF (enUltimas(i, j) & i == 13)
+
+
         Button botonAux = new Button();
         int blancosDerecha=0;
         int blancosAbajo=0;
         int [] rangoDerecha = new int[2];
         int [] rangoAbajo = new int[2];
 
-        for(int i=1;i<14;i++){
-            for(int j=1;j<14;j++){
+        for(int i=0;i<14;i++){
+            for(int j=0;j<14;j++){
                 botonAux=(Button)buscarNodo(i,j);
                 if(botonAux.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")) {
                     if (enUltimas(i, j) & i == 13) {
                         blancosDerecha = verificarBlancos(i, j, 1);
                         rangoDerecha = establecerLimitesSuma(blancosDerecha, blancosAbajo, 1);
+                        if(blancosDerecha==1)
+                            botonAux.setText("       1-9");
+                        else if(blancosDerecha!=0)
+                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
+
                     } else if (enUltimas(i, j) & j == 13) {
                         blancosAbajo = verificarBlancos(i, j, 2);
                         rangoAbajo = establecerLimitesSuma(blancosDerecha, blancosAbajo, 2);
+
+                        if(blancosAbajo==1)
+                            botonAux.setText("\n1-9");
+                        else if(blancosAbajo!=0)
+                            botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+
                     } else {
                         blancosDerecha = verificarBlancos(i, j, 1);
                         blancosAbajo = verificarBlancos(i, j, 2);
                         rangoDerecha = establecerLimitesSuma(blancosDerecha, blancosAbajo, 1);
                         rangoAbajo = establecerLimitesSuma(blancosDerecha, blancosAbajo, 2);
-                    }
 
-                    if (blancosDerecha == 1 & blancosAbajo != 1) {
-                        botonAux = (Button) buscarNodo(i, j);
-                        botonAux.setText("\t1\n  1-9");
+                        // No pongo condicion de si para cualquier lado es nulo porque al final no va a hacer nada
+
+                        if(blancosDerecha==0 & blancosAbajo == 1){ //solo hay una casilla hacia abajo y a la derecha nulo
+                            botonAux.setText("\n1-9");
+                        }
+                        else  if(blancosDerecha==1 & blancosAbajo == 0){ //solo hay una casilla hacia la derecha y hacia abajo nulo
+                            botonAux.setText("       1-9");
+                        }
+
+                        else if(blancosDerecha==1 & blancosAbajo ==1){ //solo hay una casilla para arriba y para abajo
+                            botonAux.setText("       1-9\n1-9");
+                        }
+                        else if(blancosAbajo ==0 & blancosDerecha !=0){ // hay mas de una a la derecha y ninguna para abajo
+                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
+                        }
+                        else if(blancosAbajo !=0 & blancosDerecha ==1){ //hay más de una para abajo y una para la derecha
+                            botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                        }
+                        else if(blancosAbajo ==1 & blancosDerecha !=0){ //hay más de una para la derecha y una para abajo
+                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n1-9");
+                        }
+                        else if(blancosAbajo !=0 & blancosDerecha!=0){ //hay mas de una para abajo y mas de una para la derecha
+                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                        }
+
+                        else if(blancosAbajo !=0 & blancosDerecha ==0){ // hay mas de una para abajo y ninguna para la derecha
+                            botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                        }
                     }
                 }
-
             }
         }
-
     }
-
-    //public void
 
     public int verificarBlancos(int fila, int columna, int modalidad){
         int contador =0;
