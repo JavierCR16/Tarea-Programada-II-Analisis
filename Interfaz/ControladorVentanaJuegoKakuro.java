@@ -1,11 +1,14 @@
 package Interfaz;
+import com.sun.glass.ui.SystemClipboard;
 import com.sun.rowset.internal.Row;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
-
+import java.io.*;
 import java.util.Random;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,6 +25,12 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     @FXML
     public GridPane matrizJuego;
+
+    @FXML
+    public Button saveButton;
+
+    @FXML
+    public Button cargarKakuro;
 
     Random rand= new Random();
 
@@ -49,8 +58,18 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
         }
         generarTablero();
-
-
+        saveButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                guardarKakuro();
+            }
+        });
+        cargarKakuro.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                cargarTablero();
+            }
+        });
     }
 
 
@@ -131,6 +150,9 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     botonSiguienteFila.setStyle("-fx-opacity: 1;");
                     botonSiguienteFila.setStyle("-fx-base: #000000;");
                 }
+
+
+
             }*/
 
            if (enPrimeras(fila,columna) & fila==0){
@@ -138,7 +160,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                if(!masde1menos10Abajo(fila,columna)){
                    int desplazamiento = desplazamiento(fila);
 
-                   Button botonAyuda = (Button) buscarNodo(desplazamiento,fila);
+                   Button botonAyuda = (Button) buscarNodo(desplazamiento,columna);
 
                    setEstilo(botonAyuda);
                }
@@ -293,6 +315,41 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         return true;
     }
 
+    public boolean guardarKakuro(){
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Kakuro.txt"), "utf-8"))){
+            int columna, fila;
+            for (Node node : matrizJuego.getChildren()) {
+                fila = matrizJuego.getRowIndex(node).intValue();
+                columna = matrizJuego.getColumnIndex(node).intValue();
+                if(fila==0){writer.write("\n"+"----------------------------------------------------"+"\n");}
+                else {
+                    if (node.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")) {writer.write("0 | ");}// +  " (" + fila + " " + columna + ") | ");}
+                    else {writer.write("1 | ");}// + " (" + fila + " " + columna + ") | ");}
+                }
+            }
+            return true;
+        }
+        catch(IOException e){e.printStackTrace(); return false;}
+    }
+
+    public void cargarTablero(){
+        try {
+            File file = new File("Kakuro.txt");
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            StringBuffer stringBuffer = new StringBuffer();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuffer.append(line);
+                stringBuffer.append("\n");
+            }
+            fileReader.close();
+            System.out.println("Contents of file:");
+            System.out.println(stringBuffer.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public void setEstilo(Button boton){
 
 
@@ -315,9 +372,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public void establecerNumeros(){
-        //MAE NO SÉ SI QUITANDO TODOxd Y DEJAR EL ULTIMO ELSE, HACE LO MISMO QUE TODOS LOS IF ANTERIORES, EMPEZANDO DESDE IF (enUltimas(i, j) & i == 13)
-
-
         Button botonAux = new Button();
         int blancosDerecha=0;
         int blancosAbajo=0;

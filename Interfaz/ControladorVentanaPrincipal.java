@@ -30,7 +30,7 @@ public class ControladorVentanaPrincipal implements Initializable {
     ImageView imagenFondo;
 
     public void initialize(URL fxmlLocations, ResourceBundle resources){
-        labelInstruccion.setText("Haga clic en cualquier lado \n \t    para comenzar");
+        labelInstruccion.setText("Haga clic en cualquier \n lado para comenzar");
         Image imagen = new Image(getClass().getResource("Imagenes\\puzzle.jpg").toExternalForm());
         imagenFondo.setImage(imagen);
         HiloPantallaInicio hiloInicio = new HiloPantallaInicio(labelInstruccion,botonPrincipal);
