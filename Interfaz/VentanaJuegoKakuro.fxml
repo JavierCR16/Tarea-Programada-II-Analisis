@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane fx:id="ventanaJuego" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="624.0" prefWidth="1438.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Interfaz.ControladorVentanaJuegoKakuro">
+<Pane fx:id="ventanaJuego" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="624.0" prefWidth="1205.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Interfaz.ControladorVentanaJuegoKakuro">
    <children>
       <GridPane fx:id="matrizJuego" gridLinesVisible="true" layoutX="14.0" layoutY="8.0">
         <columnConstraints>
@@ -39,5 +40,7 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
       </GridPane>
+      <Button id="saveButton" fx:id="saveButton" layoutX="1120.0" layoutY="35.0" mnemonicParsing="false" text="Guardar" />
+      <Button id="cargarKakuro" fx:id="cargarKakuro" layoutX="1124.0" layoutY="77.0" mnemonicParsing="false" text="Cargar" />
    </children>
 </Pane>
