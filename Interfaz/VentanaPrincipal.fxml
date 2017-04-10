@@ -24,5 +24,6 @@
             <Font name="Bernard MT Condensed" size="36.0" />
          </font>
       </Label>
+      <Button fx:id="cargarKakuro" layoutX="14.0" layoutY="411.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="107.0" text="Cargar Kakuro" />
    </children>
 </Pane>

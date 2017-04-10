@@ -40,7 +40,6 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
       </GridPane>
-      <Button id="saveButton" fx:id="saveButton" layoutX="1120.0" layoutY="35.0" mnemonicParsing="false" text="Guardar" />
-      <Button id="cargarKakuro" fx:id="cargarKakuro" layoutX="1124.0" layoutY="77.0" mnemonicParsing="false" text="Cargar" />
+      <Button id="saveButton" fx:id="saveButton" layoutX="1062.0" layoutY="30.0" mnemonicParsing="false" text="Guardar" />
    </children>
 </Pane>

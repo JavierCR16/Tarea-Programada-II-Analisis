@@ -33,7 +33,7 @@ public class HiloPantallaInicio extends Thread {
                     if (contador <= 0.0) {
 
                         while (contador < 1.0) {
-                           instruccionTexto.setOpacity(contador);
+                            instruccionTexto.setOpacity(contador);
                             sleep(50);
                             contador += 0.01;
                             //System.out.println(contador);
