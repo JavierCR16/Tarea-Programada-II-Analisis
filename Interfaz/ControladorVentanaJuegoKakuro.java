@@ -414,18 +414,22 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public void cargarTexto(String[] clave){
-        String numero, tmp = "";
+        String tmp;
         tmp = clave[0];
-        int fila = ((int) tmp.charAt(1))-48;
-        int columna = ((int) tmp.charAt(3))-48;
-        numero = clave[1];
-        boolean down=false, up=false, left=false, right=false;
-        down = Boolean.parseBoolean(clave[2]);
-        up=Boolean.parseBoolean(clave[3]);
-        left=Boolean.parseBoolean(clave[4]);
-        right=Boolean.parseBoolean(clave[5]);
-        //FIXME ponerle el formato para que quede bien acomodado el numero
+        String[] array = tmp.split(",");
+        int fila = Integer.parseInt(array[0]);
+        int columna = Integer.parseInt(array[1]);
+        String down="", up="", left="", right="";
+        if(!clave[1].equals("0"))
+            down = "\n"+clave[1];
+        if(!clave[2].equals("0"))
+            up=clave[2];
+        if(!clave[3].equals("0"))
+            left=clave[3];
+        if(!clave[4].equals("0"))
+            right="       "+clave[4];
+        tmp = up+left+right+down;
         Button botonTablero = (Button)buscarNodo(fila,columna);
-        botonTablero.setText(numero);
+        botonTablero.setText(tmp);
     }
 }
