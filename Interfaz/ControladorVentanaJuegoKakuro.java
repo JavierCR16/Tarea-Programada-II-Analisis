@@ -9,7 +9,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -33,23 +36,24 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     Random rand= new Random();
 
     String datosCarga = "";
+
     ArrayList<String[]> datosCarga2 = new ArrayList<>();
+
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+    Date date = new Date();
 
     public void initialize(URL fxmlLocations, ResourceBundle resources){
         propiedadesFilaColumna();
         for(int i=0;i<14;i++){
             for(int j=0;j<14;j++){
                 Button botonJuego = new Button();
-                botonJuego.setMaxSize(80,80);/*
-                 botonJuego.setOnMouseEntered(event -> {
-                    if(botonJuego.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
-                        botonJuego.setStyle("-fx-focus-color: transparent; -fx-opacity: 1; -fx-base: #000000;  ");
+                botonJuego.setMaxSize(80,80);
+                 botonJuego.setOnMouseClicked(event -> {
+                     int [] caca = buscarNodoAux(botonJuego);
+                     masde1menos10Derecha(caca[0],caca[1]);
+                     masde1menos10Abajo(caca[0],caca[1]);
 
-                        System.out.print(botonJuego.getText());}
-                    //else{
-                     //System.out.println(botonJuego.getStyle());
-                     //}
-                 });*/
+                 });
                 matrizJuego.add(botonJuego,i,j,1,1);// i = columna, j=fila
             }
         }
@@ -76,19 +80,20 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public void generarTablero(){
+
         for(int i = 0; i<14;i++){
             Button botonTablero = (Button)buscarNodo(i,0);
             Button botonTablero2= (Button)buscarNodo(0,i);
             setEstilo(botonTablero);
             setEstilo(botonTablero2);
         }
+
         int randomNegros = rand.nextInt(162-1+1)+1;;
         int contador= 0;
+
         int fila;
         int columna;
         while(contarCuadros()<=82){
-            int cuadrosNegros = contarCuadros();
-            //System.out.println("Cuadros negros en el tablero: "+cuadrosNegros);
             fila = rand.nextInt(13-0+1)+0;
             columna = rand.nextInt(13-0+1)+0;
             Button botonJuego = (Button) buscarNodo(fila, columna);
@@ -178,6 +183,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                setEstilo(botonAyuda);
            }
         }
+        verificarTodoBien();
         establecerNumeros();
     }
 
@@ -219,33 +225,38 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public boolean masde1menos10Derecha(int fila,int columna){
-        int contador=1;
+        int contador=0;
+
         for (int i=columna+1;i<14;i++){
-            Button botonAux =(Button)buscarNodo(fila,columna);
-            if(botonAux.getStyle().equals("-fx-base: #000000;"))
+            Button botonAux =(Button)buscarNodo(fila,i);
+            if(botonAux.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
                 break;
             contador++;
         }
+       // System.out.println("Blancos Derecha: "+contador);
         if(contador >9)
             return false;
         return true;
     }
 
     public boolean masde1menos10Abajo(int fila, int columna){
-        int contador=1;
+        int contador=0;
         for (int i=fila+1;i<14;i++){
-            Button botonAux =(Button)buscarNodo(fila,columna);
+            Button botonAux =(Button)buscarNodo(i,columna);
             if(botonAux.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))//-fx-base: #000000;
                 break;
-            contador++;
+            contador+=1;
         }
+      //  System.out.println("Blancos Abajo: "+contador);
         if(contador >9)
             return false;
         return true;
     }
 
     public boolean guardarKakuro(){
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Kakuro.txt"), "utf-8"))){
+        String nombreArchivo = "Kakuro"+dateFormat.format(date)+".txt";
+
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(nombreArchivo), "utf-8"))){
             for(int i=0;i<14;i++){
                 for(int j=0;j<14;j++){
                     Button botonAuxiliar = (Button)buscarNodo(i,j);
@@ -270,7 +281,10 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public int desplazamiento(int FILCOL){
-        int desplazamiento = rand.nextInt(9-1+1) +1;//VERIFICAR
+        int desplazamiento = rand.nextInt(9-1+1) +1;
+        while(desplazamiento==0){
+            desplazamiento = rand.nextInt(9-1+1) +1;
+        }
         if(FILCOL+desplazamiento >13)
             desplazamiento= FILCOL+desplazamiento-13;
         return desplazamiento;
@@ -286,11 +300,12 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int blancosAbajo=0;
         int [] rangoDerecha = new int[2];
         int [] rangoAbajo = new int[2];
+
         for(int i=0;i<14;i++){
             for(int j=0;j<14;j++){
                 botonAux=(Button)buscarNodo(i,j);
                 if(botonAux.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")) {
-                    if (enUltimas(i, j) & i == 13) {
+                 /*   if (enUltimas(i, j) & i == 13) {
                         blancosDerecha = verificarBlancos(i, j, 1);
                         rangoDerecha = establecerLimitesSuma(blancosDerecha, blancosAbajo, 1);
                         if(blancosDerecha==1)
@@ -305,8 +320,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                             botonAux.setText("\n1-9");
                         else if(blancosAbajo!=0)
                             botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
-                    }
-                    else {
+                    }*/
+                    //else {
                         blancosDerecha = verificarBlancos(i, j, 1);
                         blancosAbajo = verificarBlancos(i, j, 2);
                         rangoDerecha = establecerLimitesSuma(blancosDerecha, blancosAbajo, 1);
@@ -321,25 +336,36 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         else if(blancosDerecha==1 & blancosAbajo ==1){ //solo hay una casilla para arriba y para abajo
                             botonAux.setText("       1-9\n1-9");
                         }
-                        else if(blancosAbajo ==0 & blancosDerecha !=0){ // hay mas de una a la derecha y ninguna para abajo
+                        else if(blancosAbajo ==0 & blancosDerecha !=0 & filaColumnaSola(i,j,2)){ // hay mas de una a la derecha y ninguna para abajo
                             botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
                         }
                         else if(blancosAbajo !=0 & blancosDerecha ==1){ //hay más de una para abajo y una para la derecha
-                            botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                            if(filaColumnaSola(i,j,1))
+                                botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                            else{
+                                botonAux.setText("\n1-9");
+                            }
+
                         }
                         else if(blancosAbajo ==1 & blancosDerecha !=0){ //hay más de una para la derecha y una para abajo
-                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n1-9");
+
+                            if(filaColumnaSola(i,j,2))
+                                botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n1-9");
+                            else{
+                                botonAux.setText("\n1-9");
+                            }
+
                         }
-                        else if(blancosAbajo !=0 & blancosDerecha!=0){ //hay mas de una para abajo y mas de una para la derecha
-                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
-                        }
-                        else if(blancosAbajo !=0 & blancosDerecha ==0){ // hay mas de una para abajo y ninguna para la derecha
+                       // else if(blancosAbajo !=0 & blancosDerecha!=0){ //hay mas de una para abajo y mas de una para la derecha
+                       //     botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                       // }
+                        else if(blancosAbajo !=0 & blancosDerecha ==0 & filaColumnaSola(i,j,1)){ // hay mas de una para abajo y ninguna para la derecha
                             botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                         }
-                    }
-                }/*
-                if(!botonAux.getText().equals(""))
-                System.out.print("num= "+botonAux.getText()+" i="+i+" j="+j+"\n");*/
+
+
+                   // }
+                }
             }
         }
     }
@@ -397,6 +423,42 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         return rango;
     }
 
+    public void verificarTodoBien(){
+        Button botonMatriz;
+        for(int i=0;i<14;i++){
+            for (int j=0;j<14;j++){
+                botonMatriz= (Button) buscarNodo(i,j);
+                if(botonMatriz.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")) {
+                    if (!masde1menos10Abajo(i, j) & !masde1menos10Derecha(i, j)) {
+                        int desplazamientoFila = desplazamiento(i);
+                        int desplazamientoColumna = desplazamiento(j);
+                        Button botonFila = (Button) buscarNodo(i, desplazamientoColumna);
+                        Button botonColumna = (Button) buscarNodo(desplazamientoFila, j);
+                        setEstilo(botonMatriz);
+                        setEstilo(botonFila);
+                       setEstilo(botonColumna);
+
+                        System.out.println("Se hizo cambio en los botones estaba malo el boton" + i + "," + j + " se pinto el boton: " + i + "," + desplazamientoColumna + " y el boton" + desplazamientoFila + "," + j);
+
+                    } else if (!masde1menos10Abajo(i, j)) {
+                        int desplazamientoFila = desplazamiento(i);
+                        Button botonaPintar = (Button) buscarNodo(desplazamientoFila, j);
+                        setEstilo(botonaPintar);
+                        System.out.println("xd");
+                        System.out.println("Se hizo cambio en los botones estaba malo el boton" + i + "," + j + " se pinto el boton: " + desplazamientoFila + "," + j);
+                    } else if (!masde1menos10Derecha(i, j)) {
+                        int desplazamientoColumna = desplazamiento(j);
+                        Button botonaPintar = (Button) buscarNodo(i, desplazamientoColumna);
+                        setEstilo(botonaPintar);
+                        System.out.println("Se hizo cambio en los botones estaba malo el boton" + i + "," + j + " se pinto el boton: " + i + "," + desplazamientoColumna);
+                    }
+                }
+
+            }
+        }
+
+    }
+
     public void cargarTablero(){
         int cont=0, fila = -1, columna=0;
         while(cont<196){
@@ -431,5 +493,73 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         tmp = up+left+right+down;
         Button botonTablero = (Button)buscarNodo(fila,columna);
         botonTablero.setText(tmp);
+    }
+
+    public boolean filaColumnaSola(int fila,int columna,int opcion){
+        int  contador =1;
+        boolean solo = true;
+        Button botonAuxiliarAdelante;
+        Button botonAuxiliarAtras;
+        Button botonDetenerse;
+        switch(opcion) {
+            case 1: //ver si hay columna sola
+                for(int i = fila+1;i<14;i++){
+                    botonDetenerse = (Button)buscarNodo(i,columna);
+                    if(botonDetenerse.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                        break;
+
+                    if(columna!=13) {
+                        if(!arribaAbajoNulo(i,columna+1))
+                            solo=false;
+                    }
+                    if(columna!=0){
+                        if(!arribaAbajoNulo(i,columna-1))
+                            solo =false;
+                    }
+
+                }
+                break;
+            case 2: //ver si hay fila sola
+                for(int j= columna+1;j<14;j++){
+                    botonDetenerse = (Button)buscarNodo(fila,j);
+                    if(botonDetenerse.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                        break;
+
+                    if(fila!=13) {
+                        if(!arribaAbajoNulo(fila+1,j))
+                            solo=false;
+                    }
+                    if(fila!=0){
+                        if(!arribaAbajoNulo(fila-1,j))
+                            solo =false;
+                    }
+                }
+                break;
+
+        }
+        return solo;
+    }
+
+    public boolean arribaAbajoNulo(int fila, int columna){
+
+        Button botonBuscar = (Button)buscarNodo(fila,columna);
+
+      return botonBuscar.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;");
+    }
+
+    public int [] buscarNodoAux(Button boton){
+        int [] coordenadas = new int[2];
+        for (Node node : matrizJuego.getChildren()) {
+            try {
+                if(boton.equals(node)){
+                    coordenadas[0]=matrizJuego.getRowIndex(node).intValue();
+                    coordenadas[1] = matrizJuego.getColumnIndex(node).intValue();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return coordenadas;
     }
 }
