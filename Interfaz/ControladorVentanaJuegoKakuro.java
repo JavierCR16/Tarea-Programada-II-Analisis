@@ -11,11 +11,8 @@ import javafx.scene.layout.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Random;
+import java.util.*;
 import java.net.URL;
-import java.util.ResourceBundle;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
@@ -50,9 +47,13 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 botonJuego.setMaxSize(80,80);
                  botonJuego.setOnMouseClicked(event -> {
                      int [] caca = buscarNodoAux(botonJuego);
-                     masde1menos10Derecha(caca[0],caca[1]);
-                     masde1menos10Abajo(caca[0],caca[1]);
-
+                     ArrayList<int[]> x = new ArrayList<int[]>();
+                     x.clear();
+                     intersecciones(caca[0],caca[1], x, botonJuego);
+                     for (int[] ints : x) {
+                         Button pene = (Button)buscarNodo(ints[0],ints[1]);
+                         pene.setText("ADJ");
+                     }
                  });
                 matrizJuego.add(botonJuego,i,j,1,1);// i = columna, j=fila
             }
@@ -97,31 +98,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             fila = rand.nextInt(13-0+1)+0;
             columna = rand.nextInt(13-0+1)+0;
             Button botonJuego = (Button) buscarNodo(fila, columna);
-           /* if(enPenultimas(fila,columna)) {
-                Button botonJuego = (Button) buscarNodo(fila, columna);
-                Button botonSiguienteFila = (Button)buscarNodo(13,columna);
-                Button botonSiguienteColumna = (Button)buscarNodo(fila,13);
-                if(fila==12 &  masde1menos10Derecha(fila,columna)){ //&  masde1menos10Derecha(fila,columna) & botonSiguienteFila.getStyle().equals("-fx-base: #000000;")){ //
-                    botonJuego.setStyle("-fx-opacity: 1;");
-                    botonJuego.setStyle("-fx-base: #000000;");
-                }
-                else if(fila==12 &  masde1menos10Derecha(fila,columna) &  masde1menos10Derecha(fila+1,columna)){
-                    botonJuego.setStyle("-fx-opacity: 1;");
-                    botonJuego.setStyle("-fx-base: #000000;");
-                    botonSiguienteFila.setStyle("-fx-opacity: 1;");
-                    botonSiguienteFila.setStyle("-fx-base: #000000;");
-                }
-                else if(columna==12 &  masde1menos10Abajo(fila,columna) & botonSiguienteColumna.getStyle().equals("-fx-base: #000000;")){ //
-                    botonJuego.setStyle("-fx-opacity: 1;");
-                    botonJuego.setStyle("-fx-base: #000000;");
-                }
-                else if(columna==12 &  masde1menos10Abajo(fila,columna) &  masde1menos10Abajo(fila,columna+1)){
-                    botonJuego.setStyle("-fx-opacity: 1;");
-                    botonJuego.setStyle("-fx-base: #000000;");
-                    botonSiguienteFila.setStyle("-fx-opacity: 1;");
-                    botonSiguienteFila.setStyle("-fx-base: #000000;");
-                }
-            }*/
            if (enPrimeras(fila,columna) & fila==0){
                if(!masde1menos10Abajo(fila,columna)){
                    int desplazamiento = desplazamiento(fila);
@@ -336,35 +312,53 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         else if(blancosDerecha==1 & blancosAbajo ==1){ //solo hay una casilla para arriba y para abajo
                             botonAux.setText("       1-9\n1-9");
                         }
-                        else if(blancosAbajo ==0 & blancosDerecha !=0 & filaColumnaSola(i,j,2)){ // hay mas de una a la derecha y ninguna para abajo
-                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
+                        else if(blancosAbajo ==0 & blancosDerecha !=0){ // hay mas de una a la derecha y ninguna para abajo
+                            if(filaColumnaSola(i,j,2))
+                                botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
+                            //else{Hay intersecciones}
                         }
                         else if(blancosAbajo !=0 & blancosDerecha ==1){ //hay más de una para abajo y una para la derecha
                             if(filaColumnaSola(i,j,1))
                                 botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                             else{
-                                botonAux.setText("\n1-9");
+                                //Intersecciones abajo
+                                botonAux.setText("       1-9");
                             }
 
                         }
                         else if(blancosAbajo ==1 & blancosDerecha !=0){ //hay más de una para la derecha y una para abajo
-
                             if(filaColumnaSola(i,j,2))
                                 botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n1-9");
                             else{
+                                //Intersecciones derecha
                                 botonAux.setText("\n1-9");
                             }
-
                         }
-                       // else if(blancosAbajo !=0 & blancosDerecha!=0){ //hay mas de una para abajo y mas de una para la derecha
-                       //     botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
-                       // }
-                        else if(blancosAbajo !=0 & blancosDerecha ==0 & filaColumnaSola(i,j,1)){ // hay mas de una para abajo y ninguna para la derecha
-                            botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                        else if(blancosAbajo !=0 & blancosDerecha!=0){ //hay mas de una para abajo y mas de una para la derecha
+                            if(filaColumnaSola(i,j,1) && filaColumnaSola(i,j,2)){
+                                botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                            }
+                            else{
+                                if(filaColumnaSola(i,j,1)){
+                                    botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                                    //Intersecciones derecha
+                                }
+                                if(filaColumnaSola(i,j,2)){
+                                    botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
+                                    //intersecciones abajo
+                                }/*
+                                else{
+                                   SI HAY INTERSECCIONES por dos lados
+                                }*/
+                            }
                         }
-
-
-                   // }
+                        else if(blancosAbajo !=0 & blancosDerecha ==0){ // hay mas de una para abajo y ninguna para la derecha
+                            if(filaColumnaSola(i,j,1))
+                                botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                            else{
+                                //intersecciones
+                            }
+                        }
                 }
             }
         }
@@ -561,5 +555,48 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
         }
         return coordenadas;
+    }
+
+    public void intersecciones(int filaInicial, int columnaInicial, ArrayList<int[]> array, Button botonActual){
+        boolean contiuar = true;
+        int[] siguiente = {filaInicial, columnaInicial};
+        if(!array.isEmpty())
+            for (int[] ints : array) {
+                if(Arrays.equals(ints, siguiente))
+                    contiuar=false;
+            }
+        if(!botonActual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;") && contiuar){
+            array.add(buscarNodoAux(botonActual));
+            if(enUltimas(filaInicial,columnaInicial) && filaInicial==13 && columnaInicial==13) {
+                intersecciones(filaInicial, columnaInicial - 1, array, (Button) buscarNodo(filaInicial, columnaInicial - 1));
+                intersecciones(filaInicial - 1, columnaInicial, array, (Button) buscarNodo(filaInicial - 1, columnaInicial));
+            }
+            else if(enUltimas(filaInicial,columnaInicial) && columnaInicial==13){
+                intersecciones(filaInicial+1, columnaInicial, array, (Button)buscarNodo(filaInicial+1, columnaInicial));
+                intersecciones(filaInicial-1, columnaInicial, array, (Button)buscarNodo(filaInicial-1, columnaInicial));
+                intersecciones(filaInicial, columnaInicial-1, array, (Button)buscarNodo(filaInicial, columnaInicial-1));
+            }
+            else if(enUltimas(filaInicial,columnaInicial) && filaInicial==13){
+                intersecciones(filaInicial, columnaInicial + 1, array, (Button) buscarNodo(filaInicial, columnaInicial + 1));
+                intersecciones(filaInicial, columnaInicial - 1, array, (Button) buscarNodo(filaInicial, columnaInicial - 1));
+                intersecciones(filaInicial - 1, columnaInicial, array, (Button) buscarNodo(filaInicial - 1, columnaInicial));
+            }
+            else if(enPrimeras(filaInicial, columnaInicial) && filaInicial==0){
+                intersecciones(filaInicial, columnaInicial + 1, array, (Button) buscarNodo(filaInicial, columnaInicial + 1));
+                intersecciones(filaInicial+1, columnaInicial, array, (Button)buscarNodo(filaInicial+1, columnaInicial));
+                intersecciones(filaInicial, columnaInicial-1, array, (Button)buscarNodo(filaInicial, columnaInicial-1));
+            }
+            else if(enPrimeras(filaInicial, columnaInicial) && columnaInicial==0) {
+                intersecciones(filaInicial, columnaInicial + 1, array, (Button) buscarNodo(filaInicial, columnaInicial + 1));
+                intersecciones(filaInicial + 1, columnaInicial, array, (Button) buscarNodo(filaInicial + 1, columnaInicial));
+                intersecciones(filaInicial - 1, columnaInicial, array, (Button) buscarNodo(filaInicial - 1, columnaInicial));
+            }
+            else{
+                intersecciones(filaInicial, columnaInicial + 1, array, (Button) buscarNodo(filaInicial, columnaInicial + 1));
+                intersecciones(filaInicial + 1, columnaInicial, array, (Button) buscarNodo(filaInicial + 1, columnaInicial));
+                intersecciones(filaInicial - 1, columnaInicial, array, (Button) buscarNodo(filaInicial - 1, columnaInicial));
+                intersecciones(filaInicial, columnaInicial-1, array, (Button)buscarNodo(filaInicial, columnaInicial-1));
+            }
+        }
     }
 }
