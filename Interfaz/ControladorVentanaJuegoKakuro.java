@@ -315,14 +315,14 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         else if(blancosAbajo ==0 & blancosDerecha !=0){ // hay mas de una a la derecha y ninguna para abajo
                             if(filaColumnaSola(i,j,2))
                                 botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
-                            //else{Hay intersecciones}
+                            else{botonAux.setText("*");}
                         }
                         else if(blancosAbajo !=0 & blancosDerecha ==1){ //hay más de una para abajo y una para la derecha
                             if(filaColumnaSola(i,j,1))
                                 botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                             else{
                                 //Intersecciones abajo
-                                botonAux.setText("       1-9");
+                                botonAux.setText("       1-9\n*");
                             }
 
                         }
@@ -331,7 +331,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                                 botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n1-9");
                             else{
                                 //Intersecciones derecha
-                                botonAux.setText("\n1-9");
+                                botonAux.setText("       *\n1-9");
                             }
                         }
                         else if(blancosAbajo !=0 & blancosDerecha!=0){ //hay mas de una para abajo y mas de una para la derecha
@@ -340,23 +340,21 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                             }
                             else{
                                 if(filaColumnaSola(i,j,1)){
-                                    botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
-                                    //Intersecciones derecha
+                                    botonAux.setText("       *\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                                 }
                                 if(filaColumnaSola(i,j,2)){
-                                    botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
-                                    //intersecciones abajo
-                                }/*
+                                    botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n*");
+                                }
                                 else{
-                                   SI HAY INTERSECCIONES por dos lados
-                                }*/
+                                   botonAux.setText("       *\n*");
+                                }
                             }
                         }
                         else if(blancosAbajo !=0 & blancosDerecha ==0){ // hay mas de una para abajo y ninguna para la derecha
                             if(filaColumnaSola(i,j,1))
                                 botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                             else{
-                                //intersecciones
+                                botonAux.setText("\n*");
                             }
                         }
                 }
