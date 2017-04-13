@@ -46,13 +46,17 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     public Label labelError;
 
     @FXML
-            public TextField numParalelos;
+    public TextField numParalelos;
+
+    public ArrayList<Dependencias> listaTemporal = new ArrayList<>();//lista de botones con sus dependencias
 
     Random rand= new Random();
 
     String datosCarga = "";
 
     ArrayList<String[]> datosCarga2 = new ArrayList<>();
+
+    ArrayList<int[]> x = new ArrayList<>();
 
     boolean hilos, forks;
 
@@ -65,16 +69,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             for(int j=0;j<14;j++){
                 Button botonJuego = new Button();
                 botonJuego.setMaxSize(80,80);
-                 botonJuego.setOnMouseClicked(event -> {
-                     int [] caca = buscarNodoAux(botonJuego);
-                     ArrayList<int[]> x = new ArrayList<>();
-                     x.clear();
-                     intersecciones(caca[0],caca[1], x, botonJuego);
-                     for (int[] ints : x) {
-                         Button pene = (Button)buscarNodo(ints[0],ints[1]);
-                         pene.setText("ADJ");
-                     }
-                 });
                 matrizJuego.add(botonJuego,i,j,1,1);// i = columna, j=fila
             }
         }
@@ -314,7 +308,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int blancosAbajo=0;
         int [] rangoDerecha = new int[2];
         int [] rangoAbajo = new int[2];
-
         for(int i=0;i<14;i++){
             for(int j=0;j<14;j++){
                 botonAux=(Button)buscarNodo(i,j);
@@ -336,23 +329,25 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     else if(blancosAbajo ==0 & blancosDerecha !=0){ // hay mas de una a la derecha y ninguna para abajo
                         if(filaColumnaSola(i,j,2))
                             botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
-                        else{botonAux.setText("*");}
+                        else{
+                            dependencias(i,j+1,false,true, x);//buscar depedencias hacia arriba
+                            Dependencias nueva = new Dependencias();
+                            nueva.botonNegro=botonAux;
+                            nueva.dependecias=x;
+                            x.clear();
+                            listaTemporal.add(nueva);
+                        }
                     }
                     else if(blancosAbajo !=0 & blancosDerecha ==1){ //hay más de una para abajo y una para la derecha
                         if(filaColumnaSola(i,j,1))
                             botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                         else{
-                            /*Intersecciones abajo
-                            Button botonJuego = (Button) buscarNodo(i+1,j);
-                            int [] caca = buscarNodoAux(botonJuego);
-                            ArrayList<int[]> x = new ArrayList<>();
+                            dependencias(i+1,j,true,false, x);
+                            Dependencias nueva = new Dependencias();
+                            nueva.botonNegro=botonAux;
+                            nueva.dependecias=x;
                             x.clear();
-                            intersecciones(caca[0],caca[1], x, botonJuego);
-                            for (int[] ints : x) {
-                                Button pene = (Button)buscarNodo(ints[0],ints[1]);
-                                pene.setText("ADJ");
-                            }*/
-                            botonAux.setText("       1-9\n*");
+                            listaTemporal.add(nueva);
                         }
 
                     }
@@ -360,7 +355,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         if(filaColumnaSola(i,j,2))
                             botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n1-9");
                         else{
-                            //dependencias(i,j+1,false,true);
                             botonAux.setText("       *\n1-9");
                         }
                     }
@@ -376,7 +370,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                                 botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n*");
                             }
                             else{
-                               botonAux.setText("       *\n*");
+                                botonAux.setText("       *\n*");
                             }
                         }
                     }
@@ -384,7 +378,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         if(filaColumnaSola(i,j,1))
                             botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                         else{
-                            dependencias(i+1,j,true,false);
                             botonAux.setText("\n*");
                         }
                     }
@@ -625,29 +618,34 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         }
     }
 
-    public void dependencias(int fila, int columna, boolean right, boolean up){
+    public ArrayList<int[]> dependencias(int fila, int columna, boolean right, boolean up, ArrayList<int[]> respuesta){
         Button botonActual = (Button) buscarNodo(fila, columna);
         boolean continuar = fila <= 13 && columna <= 13 && fila > 0 && columna >= 0;
         boolean continuarRight = fila <= 13 && columna <= 13 && fila >= 0 && columna > 0;
         int tmpFila = fila;
         int tmpColumna = columna;
         if(continuar && up && !botonActual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){//buscar dependencias hacia arriba
-            while(!botonActual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
+            while(!botonActual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){//va buscando un boton negro en la columna
                 tmpFila--;
                 botonActual = (Button) buscarNodo(tmpFila, tmpColumna);
             }
-            botonActual = (Button) buscarNodo(fila, columna);
-            botonActual.setText(tmpFila+" "+tmpColumna);
-            dependencias(fila, columna+1, false, true);
+            botonActual = (Button) buscarNodo(fila, columna);//si encuentra boton negro significa que la casilla en la que esta dependera de el
+            botonActual.setText(tmpFila+","+tmpColumna);
+            int[] aux = {tmpFila,tmpColumna};
+            respuesta.add(aux);
+            return dependencias(fila, columna+1, false, true, respuesta);//por recursividad se va buscando por toda la fila o columna
         }
-        if(continuarRight && right && !botonActual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
-            while(!botonActual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
+        if(continuarRight && right && !botonActual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){//buscar dependencia hacia abajo
+            while(!botonActual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){//va buscando un boton negro en la fila
                 tmpColumna--;
                 botonActual = (Button) buscarNodo(tmpFila, tmpColumna);
             }
             botonActual = (Button) buscarNodo(fila, columna);
-            botonActual.setText(tmpFila+" "+tmpColumna);
-            dependencias(fila+1, columna, true, false);
+            botonActual.setText(tmpFila+","+tmpColumna);
+            int[] aux = {tmpFila,tmpColumna};
+            respuesta.add(aux);
+            return dependencias(fila+1, columna, true, false, respuesta);
         }
+        return respuesta;
     }
 }
