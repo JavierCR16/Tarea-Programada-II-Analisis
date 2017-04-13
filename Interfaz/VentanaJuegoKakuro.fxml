@@ -13,15 +13,15 @@
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="176.0" minWidth="0.0" prefWidth="37.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="176.0" minWidth="10.0" prefWidth="37.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="176.0" minWidth="10.0" prefWidth="37.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="0.0" prefWidth="81.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="119.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="84.0" minWidth="10.0" prefWidth="42.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="162.0" minWidth="10.0" prefWidth="52.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="187.0" minWidth="0.0" prefWidth="49.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="258.0" minWidth="10.0" prefWidth="53.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="304.0" minWidth="10.0" prefWidth="55.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="302.0" minWidth="10.0" prefWidth="46.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="280.0" minWidth="10.0" prefWidth="93.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="277.0" minWidth="10.0" prefWidth="72.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="303.0" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints maxHeight="32.0" minHeight="7.0" prefHeight="32.0" vgrow="SOMETIMES" />
@@ -40,6 +40,11 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
       </GridPane>
-      <Button id="saveButton" fx:id="saveButton" layoutX="1062.0" layoutY="30.0" mnemonicParsing="false" text="Guardar" />
+      <Button id="saveButton" fx:id="saveButton" layoutX="863.0" layoutY="22.0" mnemonicParsing="false" text="Guardar" />
+      <Button id="resolverKakuro" fx:id="resolverKakuro" layoutX="862.0" layoutY="73.0" mnemonicParsing="false" text="Resolver" />
+      <TextField id="numParalelos" fx:id="numParalelos" layoutX="845.0" layoutY="153.0" prefHeight="25.0" prefWidth="116.0" />
+      <RadioButton id="hilosRadio" fx:id="hilosRadio" layoutX="845.0" layoutY="119.0" mnemonicParsing="false" text="Hilos" />
+      <RadioButton id="forksRadio" fx:id="forksRadio" layoutX="919.0" layoutY="119.0" mnemonicParsing="false" text="Forks" />
+      <Label id="labelError" fx:id="labelError" layoutX="848.0" layoutY="194.0" prefHeight="77.0" prefWidth="178.0" />
    </children>
 </Pane>
