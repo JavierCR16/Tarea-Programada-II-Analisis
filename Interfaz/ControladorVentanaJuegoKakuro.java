@@ -48,8 +48,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     @FXML
     public TextField numParalelos;
 
-    public ArrayList<Dependencias> listaTemporal = new ArrayList<>();//lista de botones con sus dependencias
-
     Random rand= new Random();
 
     String datosCarga = "";
@@ -57,6 +55,10 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     ArrayList<String[]> datosCarga2 = new ArrayList<>();
 
     ArrayList<int[]> x = new ArrayList<>();
+
+    ArrayList<Button> revisarFila = new ArrayList<>();
+
+    ArrayList<Button> revisarColumna = new ArrayList<>();
 
     boolean hilos, forks;
 
@@ -330,24 +332,16 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         if(filaColumnaSola(i,j,2))
                             botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
                         else{
-                            dependencias(i,j+1,false,true, x);//buscar depedencias hacia arriba
-                            Dependencias nueva = new Dependencias();
-                            nueva.botonNegro=botonAux;
-                            nueva.dependecias=x;
-                            x.clear();
-                            listaTemporal.add(nueva);
+                            botonAux.setText("       *");
+                            revisarColumna.add(botonAux);
                         }
                     }
                     else if(blancosAbajo !=0 & blancosDerecha ==1){ //hay más de una para abajo y una para la derecha
                         if(filaColumnaSola(i,j,1))
                             botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                         else{
-                            dependencias(i+1,j,true,false, x);
-                            Dependencias nueva = new Dependencias();
-                            nueva.botonNegro=botonAux;
-                            nueva.dependecias=x;
-                            x.clear();
-                            listaTemporal.add(nueva);
+                            botonAux.setText("       1-9\n*");
+                            revisarFila.add(botonAux);
                         }
 
                     }
@@ -356,6 +350,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                             botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n1-9");
                         else{
                             botonAux.setText("       *\n1-9");
+                            revisarColumna.add(botonAux);
                         }
                     }
                     else if(blancosAbajo !=0 & blancosDerecha!=0){ //hay mas de una para abajo y mas de una para la derecha
@@ -365,12 +360,16 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         else{
                             if(filaColumnaSola(i,j,1)){
                                 botonAux.setText("       *\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                                revisarColumna.add(botonAux);
                             }
                             if(filaColumnaSola(i,j,2)){
                                 botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n*");
+                                revisarFila.add(botonAux);
                             }
                             else{
                                 botonAux.setText("       *\n*");
+                                revisarColumna.add(botonAux);
+                                revisarFila.add(botonAux);
                             }
                         }
                     }
@@ -379,10 +378,33 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                             botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                         else{
                             botonAux.setText("\n*");
+                            revisarFila.add(botonAux);
                         }
                     }
                 }
             }
+        }
+        for (Button button : revisarFila) {
+            button.setStyle("-fx-opacity: 1; -fx-base: #FF0000;");
+        }
+        for (Button button : revisarColumna) {
+            button.setStyle("-fx-opacity: 1; -fx-base: #00FF00;");
+        }
+    }
+
+    public void permutaciones(int clave, int opcion, int cantCasillas, int[] restricciones,Button boton,boolean mayor,boolean menor){
+
+        int cantPermutaciones = 0;
+        if(mayor | menor){
+            while(cantPermutaciones != factorial(cantCasillas))
+        }
+        switch (opcion){
+            case 1:
+                while(cantCasillas!=0){
+
+                }
+            case 2:
+
         }
     }
 
@@ -469,9 +491,13 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         System.out.println("Se hizo cambio en los botones estaba malo el boton" + i + "," + j + " se pinto el boton: " + i + "," + desplazamientoColumna);
                     }
                 }
-
             }
         }
+    }
+
+    public int factorial(int cantCasillas){
+
+
 
     }
 
