@@ -66,6 +66,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     Date date = new Date();
 
     public void initialize(URL fxmlLocations, ResourceBundle resources){
+
+
         propiedadesFilaColumna();
         for(int i=0;i<14;i++){
             for(int j=0;j<14;j++){
@@ -79,6 +81,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         });
 
         resolverKakuro.setOnAction(event -> {
+
             hilos=hilosRadio.isSelected();
             forks=forksRadio.isSelected();
             if(hilos && forks){
@@ -392,21 +395,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         }
     }
 
-    public void permutaciones(int clave, int opcion, int cantCasillas, int[] restricciones,Button boton,boolean mayor,boolean menor){
-
-        int cantPermutaciones = 0;
-        if(mayor | menor){
-            while(cantPermutaciones != factorial(cantCasillas))
-        }
-        switch (opcion){
-            case 1:
-                while(cantCasillas!=0){
-
-                }
-            case 2:
-
-        }
-    }
 
     public int verificarBlancos(int fila, int columna, int modalidad){
         int contador =0;
@@ -496,9 +484,27 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public int factorial(int cantCasillas){
+        int factorial = cantCasillas;
+        while(cantCasillas!=1){
 
+            factorial = factorial *cantCasillas-1;
+            cantCasillas--;
 
+        }
+        return factorial;
+    }
 
+    public void Perm2(String[] elem, String restricciones, int n, int r,ArrayList<String> permutaciones ) {
+        if (n == 0) {
+           // if (act.contains(restricciones))
+                permutaciones.add(restricciones);
+        } else {
+            for (int i = 0; i < r; i++) {
+                if (!restricciones.contains(elem[i])) { // Controla que no haya repeticiones
+                    Perm2(elem, restricciones + elem[i] + ", ", n - 1, r,permutaciones);
+                }
+            }
+        }
     }
 
     public void cargarTablero(){
