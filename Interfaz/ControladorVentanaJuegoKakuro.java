@@ -1,8 +1,4 @@
 package Interfaz;
-import com.sun.glass.ui.SystemClipboard;
-import com.sun.rowset.internal.Row;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -344,7 +340,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         if(filaColumnaSola(i,j,1))
                             botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                         else{
-                            botonAux.setText("       1-9\n*");
+                            botonAux.setText("       1-9\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                             revisarFila.add(botonAux);
                         }
 
@@ -367,11 +363,11 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                                 revisarColumna.add(botonAux);
                             }
                             if(filaColumnaSola(i,j,2)){
-                                botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n*");
+                                botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                                 revisarFila.add(botonAux);
                             }
                             else{
-                                botonAux.setText("       *\n*");
+                                botonAux.setText("       *\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                                 revisarColumna.add(botonAux);
                                 revisarFila.add(botonAux);
                             }
@@ -381,7 +377,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         if(filaColumnaSola(i,j,1))
                             botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                         else{
-                            botonAux.setText("\n*");
+                            botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                             revisarFila.add(botonAux);
                         }
                     }
@@ -389,11 +385,22 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
         }
         for (Button button : revisarFila) {
-            button.setStyle("-fx-opacity: 1; -fx-base: #FF0000;");
-        }
+            //button.setStyle("-fx-opacity: 1; -fx-base: #FF0000;");
+            int valor = Integer.parseInt(button.getText().replace("       ", "").replace("1-9", "").replace("\n", "").replace("*",""));
+            int[] coordenadasButton = buscarNodoAux(button);
+            int cont = verificarBlancos(coordenadasButton[0], coordenadasButton[1], 2);
+            ArrayList<String> permutacionesPosibles = new ArrayList<>();
+            String[] elem = {"1","2","3","4","5","6","7","8","9"};
+            Permutaciones(elem, "", cont, 9, permutacionesPosibles, valor);
+            System.out.println("Valor es: "+valor);
+            for (String permutacionesPosible : permutacionesPosibles) {
+                System.out.println(permutacionesPosible);
+            }
+        }/*
         for (Button button : revisarColumna) {
-            button.setStyle("-fx-opacity: 1; -fx-base: #00FF00;");
-        }
+            //button.setStyle("-fx-opacity: 1; -fx-base: #00FF00;");
+        }*/
+
     }
 
 
@@ -484,25 +491,19 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         }
     }
 
-    public int factorial(int cantCasillas){
-        int factorial = cantCasillas;
-        while(cantCasillas!=1){
-
-            factorial = factorial *cantCasillas-1;
-            cantCasillas--;
-
-        }
-        return factorial;
-    }
-
-    public void Perm2(String[] elem, String restricciones, int n, int r,ArrayList<String> permutaciones ) {
+    public void Permutaciones(String[] elem, String restricciones, int n, int r, ArrayList<String> permutaciones, int valor) {
         if (n == 0) {
-           // if (act.contains(restricciones))
+            int suma=0;
+            String[] array = restricciones.split(",");
+            for(int i=0; i<array.length ; i++){
+                suma+=Integer.parseInt(array[i]);
+            }
+            if(suma==valor)
                 permutaciones.add(restricciones);
         } else {
             for (int i = 0; i < r; i++) {
                 if (!restricciones.contains(elem[i])) { // Controla que no haya repeticiones
-                    Perm2(elem, restricciones + elem[i] + ", ", n - 1, r,permutaciones);
+                    Permutaciones(elem, restricciones + elem[i] +"," , n - 1, r,permutaciones, valor);
                 }
             }
         }
