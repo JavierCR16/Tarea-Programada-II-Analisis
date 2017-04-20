@@ -62,8 +62,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     Date date = new Date();
 
     public void initialize(URL fxmlLocations, ResourceBundle resources){
-
-
         propiedadesFilaColumna();
         for(int i=0;i<14;i++){
             for(int j=0;j<14;j++){
@@ -240,7 +238,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             Button botonAux =(Button)buscarNodo(fila,i);
             if(botonAux.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
                 break;
-            contador++;
+            contador+=1;
         }
        // System.out.println("Blancos Derecha: "+contador);
         if(contador >9)
@@ -385,24 +383,59 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
         }
         for (Button button : revisarFila) {
-            //button.setStyle("-fx-opacity: 1; -fx-base: #FF0000;");
+          //  button.setStyle("-fx-base: #FF0000;");
             int valor = Integer.parseInt(button.getText().replace("       ", "").replace("1-9", "").replace("\n", "").replace("*",""));
             int[] coordenadasButton = buscarNodoAux(button);
             int cont = verificarBlancos(coordenadasButton[0], coordenadasButton[1], 2);
             ArrayList<String> permutacionesPosibles = new ArrayList<>();
             String[] elem = {"1","2","3","4","5","6","7","8","9"};
             Permutaciones(elem, "", cont, 9, permutacionesPosibles, valor);
-            System.out.println("Valor es: "+valor);
-            for (String permutacionesPosible : permutacionesPosibles) {
-                System.out.println(permutacionesPosible);
+
+            int permutacionRandom = rand.nextInt(permutacionesPosibles.size()-1-1+1)+1;//(max - min +1) + min
+            String permutacionEscogida = permutacionesPosibles.get(permutacionRandom); //Escoge una de las posibles permutaciones
+            establecerPermutacionACasillasBlancasAbajo(coordenadasButton[0],coordenadasButton[1],permutacionEscogida,2); //Setea el boton actual con la permutacion escogida
+            ArrayList<String> hacerListasDerecha =  verificarNoRepetidosFila(coordenadasButton[0],coordenadasButton[1],1); //Guarda las coordenadas del botonNegro si hay repetidos al revisar los blancos, si esta vacio es que no habia repetidos para la derecha
+            ArrayList<String> hacerListasIzquierda = verificarNoRepetidosFila(coordenadasButton[0],coordenadasButton[1],2); // Igual que la de arriba solo que verifica para la izquierda
+
+            while(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty()){ //while hasta que ya no hayan repetidos.
+                for(int i=0;i<permutacionesPosibles.size();i++) { //En caso de que la aleatoria no sirviera, se prueba con todas las permutaciones
+                    ///permutacionRandom = rand.nextInt(permutacionesPosibles.size() - 1 - 1 + 1) + 1;//(max - min +1) + min
+                    permutacionEscogida = permutacionesPosibles.get(i);
+                    System.out.println("Viendo a ver si sirve la permutacion: "+permutacionEscogida);
+                    establecerPermutacionACasillasBlancasAbajo(coordenadasButton[0], coordenadasButton[1], permutacionEscogida, 2);
+                    hacerListasDerecha = verificarNoRepetidosFila(coordenadasButton[0], coordenadasButton[1], 1); //Verifico que no se repita hacia la derecha algun numero con la permutacion escogida
+                    hacerListasIzquierda = verificarNoRepetidosFila(coordenadasButton[0], coordenadasButton[1], 2); //Lo mismo solo que a la izquerda
+                    if(!(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty())){ //En caso de encontras una buena permutacion, salgase del for, se saldra de una vez del while
+                        break;
+                    }
+                    if(i == permutacionesPosibles.size()){ //En el caso extremo de que ninguna permutacion sirva, le indico que cambie la clave, actualize el valor, limpie las permutaciones, y vuelva a empezar a verificar permutaciones con la nueva clave.
+                        cambiarClave(button,valor);// ver funcion
+                        valor = Integer.parseInt(button.getText().replace("       ", "").replace("1-9", "").replace("\n", "").replace("*",""));
+                        permutacionesPosibles.clear();
+                        Permutaciones(elem, "", cont, 9, permutacionesPosibles, valor);
+                    }
+                }
             }
-        }/*
+
+            if(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty()) {
+                System.out.println("En la posicion: " + coordenadasButton[0] + "," + coordenadasButton[1] + " hay repetidos en las posiciones:");
+                for (String s : hacerListasDerecha) {
+                    System.out.println(s);
+                }
+                for (String s : hacerListasIzquierda) {
+                    System.out.println(s);
+                }
+            }
+
+
+        }
+
+        /*
         for (Button button : revisarColumna) {
             //button.setStyle("-fx-opacity: 1; -fx-base: #00FF00;");
         }*/
 
     }
-
 
     public int verificarBlancos(int fila, int columna, int modalidad){
         int contador =0;
@@ -411,21 +444,21 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             case 1:
                 //columna = columna+1;
                 while(columna!=13){ //Hacia Derecha
-                    columna++;
+                    columna+=1;
                     botonFinal = (Button) buscarNodo(fila,columna);
                     if(botonFinal.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
                         break;
-                    contador++;
+                    contador+=1;
                 }
                 break;
             case 2:
                // fila = fila+1;
                 while(fila!=13){ //Hacia Abajo
-                    fila++;
+                    fila+=1;
                     botonFinal = (Button) buscarNodo(fila,columna);
                     if(botonFinal.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
                         break;
-                    contador++;
+                    contador+=1;
                 }
                 break;
         }
@@ -470,7 +503,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         Button botonColumna = (Button) buscarNodo(desplazamientoFila, j);
                         setEstilo(botonMatriz);
                         setEstilo(botonFila);
-                       setEstilo(botonColumna);
+                        setEstilo(botonColumna);
 
                         System.out.println("Se hizo cambio en los botones estaba malo el boton" + i + "," + j + " se pinto el boton: " + i + "," + desplazamientoColumna + " y el boton" + desplazamientoFila + "," + j);
 
@@ -681,5 +714,122 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             return dependencias(fila+1, columna, true, false, respuesta);
         }
         return respuesta;
+    }
+
+    public void establecerPermutacionACasillasBlancasAbajo(int fila, int columna, String permutaciones, int modalidad){
+        int contador = 0;
+        Button botonASetear;
+        permutaciones = permutaciones.replace(",","");
+        switch (modalidad){
+            case 1:
+                //columna = columna+1;
+                while(columna!=13){ //Hacia Derecha
+                    columna++;
+                    botonASetear = (Button) buscarNodo(fila,columna);
+                    if(botonASetear.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                        break;
+                    contador++;
+                }
+                break;
+            case 2:
+                // fila = fila+1;
+                while(fila!=13){ //Hacia Abajo
+                    fila++;
+                    botonASetear = (Button) buscarNodo(fila,columna);
+                    if(botonASetear.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                        break;
+                    botonASetear.setText(Character.toString(permutaciones.charAt(contador)));
+                    contador++;
+                }
+
+        }
+
+
+    }
+
+    public ArrayList<String> verificarNoRepetidosFila(int fila, int columna, int opcion){
+        ArrayList<String> posicionDondeHacerLista = new ArrayList<String>();
+        posicionDondeHacerLista.add(fila + "," + columna);
+
+        int contador =0;
+        int cuantosCuadrosRecorrer = verificarBlancos(fila,columna,2);
+        fila+=1;
+        int respaldoColumna= columna;
+        Button botonRepetido=(Button) buscarNodo(fila,columna);
+
+
+        String numeroEnBoton = botonRepetido.getText();
+        boolean usarPosiciones = false;
+
+        switch (opcion){
+            case 1:
+                //columna = columna+1;
+                while(contador<cuantosCuadrosRecorrer) {
+                    botonRepetido = (Button) buscarNodo(fila, columna);
+                    numeroEnBoton = botonRepetido.getText();
+                    while (columna != 13) { //Hacia Derecha
+                        //posicionDondeHacerLista.add(fila + "," + columna);
+                        columna+=1;
+                        botonRepetido = (Button) buscarNodo(fila, columna);
+                        if (numeroEnBoton.equals(botonRepetido.getText())) {
+                           // posicionDondeHacerLista.add(fila + "," + columna);
+                            usarPosiciones = true;
+                        }
+                        if (botonRepetido.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                            break;
+                        // contador++;
+                    }
+                    contador+=1;
+                    columna=respaldoColumna;
+                    fila+=1;
+                }
+                break;
+            case 2:
+                // fila = fila+1;
+                while(contador<cuantosCuadrosRecorrer) {
+                    botonRepetido = (Button) buscarNodo(fila, columna);
+                    numeroEnBoton = botonRepetido.getText();
+                    while (columna != 0) { //Hacia Izquierda
+                       // posicionDondeHacerLista.add(fila + "," + columna);
+                        columna-=1;
+                        botonRepetido = (Button) buscarNodo(fila, columna);
+                        if (numeroEnBoton.equals(botonRepetido.getText())) {
+                            usarPosiciones = true;
+                          //  posicionDondeHacerLista.add(fila + "," + columna);
+                        }
+                        if (botonRepetido.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                            break;
+                        //  contador++;
+                    }
+                    columna=respaldoColumna;
+                    contador+=1;
+                    fila+=1;
+                }
+                break;
+        }
+        if(usarPosiciones)
+            return posicionDondeHacerLista;
+        return new ArrayList<String>();
+
+    }
+
+    public void cambiarClave(Button botonACambias,int claveAnterior){
+
+        int[] coordenadas = buscarNodoAux(botonACambias);
+
+        System.out.println("El boton en :" + coordenadas[0]+","+coordenadas[1]+" ha cambiado su antigua clave "+claveAnterior);
+
+        int blancosDerecha = verificarBlancos(coordenadas[0],coordenadas[1],1);
+        int blancosAbajo = verificarBlancos(coordenadas[0],coordenadas[1],2);
+        int [] posibleValor = establecerLimitesSuma(blancosDerecha,blancosAbajo,2);// Verifico Blancos para poder establecer el minimo y el maximo posibles.
+
+        int nuevoValor = rand.nextInt(posibleValor[1]-posibleValor[0]+1)+posibleValor[0];// Random para saber la nueva clave
+
+        while(claveAnterior==nuevoValor){ //Para que no sea el mismo valor que el anterior, while hasta que sea distinto
+             nuevoValor = rand.nextInt(posibleValor[1]-posibleValor[0]+1)+posibleValor[0];
+        }
+        botonACambias.setText(nuevoValor+""); //FIXME Falta preguntar todos los casos para saber como esta el formato del boton y poder escribirle el valor con el formato correcto.
+        //if(botonACambias.getText().equals())
+
     }
 }
