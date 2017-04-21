@@ -8,6 +8,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -384,14 +385,20 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         }
         for (Button button : revisarFila) {
           //  button.setStyle("-fx-base: #FF0000;");
-            int valor = Integer.parseInt(button.getText().replace("       ", "").replace("1-9", "").replace("\n", "").replace("*",""));
+            int valor = Integer.parseInt(button.getText().replace("       ", "").split("\n")[1]);
+            //System.out.println(valor);
             int[] coordenadasButton = buscarNodoAux(button);
+            //System.out.println(coordenadasButton[0]+" "+coordenadasButton[1]);
             int cont = verificarBlancos(coordenadasButton[0], coordenadasButton[1], 2);
             ArrayList<String> permutacionesPosibles = new ArrayList<>();
             String[] elem = {"1","2","3","4","5","6","7","8","9"};
             Permutaciones(elem, "", cont, 9, permutacionesPosibles, valor);
+            if(permutacionesPosibles.size()<=1){
+                System.out.println(permutacionesPosibles.get(0));
+                System.out.println(coordenadasButton[0]+" "+coordenadasButton[1]);
 
-            int permutacionRandom = rand.nextInt(permutacionesPosibles.size()-1-1+1)+1;//(max - min +1) + min
+            }
+            int permutacionRandom = rand.nextInt(permutacionesPosibles.size());//(max - min +1) + min
             String permutacionEscogida = permutacionesPosibles.get(permutacionRandom); //Escoge una de las posibles permutaciones
             establecerPermutacionACasillasBlancasAbajo(coordenadasButton[0],coordenadasButton[1],permutacionEscogida,2); //Setea el boton actual con la permutacion escogida
             ArrayList<String> hacerListasDerecha =  verificarNoRepetidosFila(coordenadasButton[0],coordenadasButton[1],1); //Guarda las coordenadas del botonNegro si hay repetidos al revisar los blancos, si esta vacio es que no habia repetidos para la derecha
@@ -399,9 +406,9 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
             while(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty()){ //while hasta que ya no hayan repetidos.
                 for(int i=0;i<permutacionesPosibles.size();i++) { //En caso de que la aleatoria no sirviera, se prueba con todas las permutaciones
-                    ///permutacionRandom = rand.nextInt(permutacionesPosibles.size() - 1 - 1 + 1) + 1;//(max - min +1) + min
+                  //  permutacionRandom = rand.nextInt(permutacionesPosibles.size() - 1 - 1 + 1) + 1;//(max - min +1) + min
                     permutacionEscogida = permutacionesPosibles.get(i);
-                    System.out.println("Viendo a ver si sirve la permutacion: "+permutacionEscogida);
+                    //System.out.println("Viendo a ver si sirve la permutacion: "+permutacionEscogida);
                     establecerPermutacionACasillasBlancasAbajo(coordenadasButton[0], coordenadasButton[1], permutacionEscogida, 2);
                     hacerListasDerecha = verificarNoRepetidosFila(coordenadasButton[0], coordenadasButton[1], 1); //Verifico que no se repita hacia la derecha algun numero con la permutacion escogida
                     hacerListasIzquierda = verificarNoRepetidosFila(coordenadasButton[0], coordenadasButton[1], 2); //Lo mismo solo que a la izquerda
@@ -416,7 +423,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     }
                 }
             }
-
+            /*
             if(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty()) {
                 System.out.println("En la posicion: " + coordenadasButton[0] + "," + coordenadasButton[1] + " hay repetidos en las posiciones:");
                 for (String s : hacerListasDerecha) {
@@ -425,16 +432,61 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 for (String s : hacerListasIzquierda) {
                     System.out.println(s);
                 }
+            }*/
+        }
+        for (Button button : revisarColumna) {
+            int[] coordenadas = buscarNodoAux(button);
+            coordenadas[1]+=1;
+            Button aux = (Button) buscarNodo(coordenadas[0], coordenadas[1]);
+            String tmp = "";
+            while(coordenadas[1]<=13 && !aux.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
+                if(!(aux.getText().equals("")))
+                    tmp+=aux.getText()+",";
+                coordenadas[1]+=1;
+                aux = (Button) buscarNodo(coordenadas[0], coordenadas[1]);
+            }
+            String[] valoresSetteados = tmp.split(",");
+            ArrayList<Integer> valoresSetteadosInts = new ArrayList<>();
+            int cuenta = 0;
+            for (String valorSetteado : valoresSetteados) {
+                valoresSetteadosInts.add(Integer.parseInt(valorSetteado));
+                cuenta += Integer.parseInt(valorSetteado);
+            }
+            coordenadas = buscarNodoAux(button);
+            int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 1);
+            if(blancos == valoresSetteados.length){
+                button.setText(Integer.toString(cuenta));
+            }
+            else{
+                while(valoresSetteadosInts.size() != blancos){
+                    int valor = rand.nextInt((9-1)+1)+1;
+                    while(valoresSetteadosInts.indexOf(valor)>=0){
+                        valor = rand.nextInt((9-1)+1)+1;
+                    }
+                    valoresSetteadosInts.add(valor);
+                    printearBoton(valor, button);
+                }
+                cuenta=0;
+                for (Integer valorSetteado : valoresSetteadosInts) {
+                    cuenta+=valorSetteado;
+                }
+                button.setText(Integer.toString(cuenta));
             }
 
-
-        }
-
-        /*
-        for (Button button : revisarColumna) {
             //button.setStyle("-fx-opacity: 1; -fx-base: #00FF00;");
-        }*/
+        }
+    }
 
+    public void printearBoton(int valor, Button negro){
+        int[] coordenadas = buscarNodoAux(negro);
+        while(coordenadas[1]!=13){ //Hacia Derecha
+            coordenadas[1]+=1;
+            negro = (Button) buscarNodo(coordenadas[0],coordenadas[1]);
+            if((negro.getText().equals(""))){
+                negro.setText(valor+"");
+                break;
+            }
+        }
     }
 
     public int verificarBlancos(int fila, int columna, int modalidad){
