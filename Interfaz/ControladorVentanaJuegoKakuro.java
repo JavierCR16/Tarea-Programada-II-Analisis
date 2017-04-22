@@ -283,6 +283,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     }
                 }
             }
+            writer.write("Claves: Machote -> fila,columna down left si la clave es nula poner un -");
             for(int i = 0; i <= 13; i++){
                 for(int j = 0; j <= 13; j++){
                     Button actual = (Button) buscarNodo(i,j);
@@ -290,11 +291,10 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         String texto = actual.getText();//FIXME logica para parsear claves que solo van hacia abajo o hacia la derecha y no tienen nada mas
                         if(texto!=""){
                             String[] numeros = texto.replace("       ", "").split("\n");
-                            for (String numero : numeros) {
-                                System.out.print(numero+",");
-                            }
+                            texto = "";
                             int[] coordenadas = buscarNodoAux(actual);
-                            System.out.println("\nCoordenadas: "+coordenadas[0]+" "+coordenadas[1]);
+                            texto+=coordenadas[0]+","+coordenadas[1]+" "+numeros[0]+" "+numeros[1]+"\n\n";
+                            writer.write(texto);
                         }
                     }
                 }
@@ -342,16 +342,16 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         botonAux.setText("       -\n1-9");
                     }
                     else  if(blancosDerecha==1 & blancosAbajo == 0){ //solo hay una casilla hacia la derecha y hacia abajo nulo
-                        botonAux.setText("       1-9");
+                        botonAux.setText("       1-9\n-");
                     }
                     else if(blancosDerecha==1 & blancosAbajo ==1){ //solo hay una casilla para arriba y para abajo
                         botonAux.setText("       1-9\n1-9");
                     }
                     else if(blancosAbajo ==0 & blancosDerecha !=0){ // hay mas de una a la derecha y ninguna para abajo
                         if(filaColumnaSola(i,j,2))
-                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0]));
+                            botonAux.setText("       "+(rand.nextInt(rangoDerecha[1]-rangoDerecha[0]+1) +rangoDerecha[0])+"\n-");
                         else{
-                            botonAux.setText("       *");
+                            botonAux.setText("       *\n-");
                             revisarColumna.add(botonAux);
                         }
                     }
@@ -404,11 +404,9 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
         }
         for (Button button : revisarFila) {//FIXME si se intenta settear una clave con muchos a la derecha y muchos hacia abajo se pueden sobre escribir
-          //  button.setStyle("-fx-base: #FF0000;");
+            String textoAnterior = button.getText();
             int valor = Integer.parseInt(button.getText().replace("       ", "").split("\n")[1]);
-            //System.out.println(valor);
             int[] coordenadasButton = buscarNodoAux(button);
-            //System.out.println(coordenadasButton[0]+" "+coordenadasButton[1]);
             int cont = verificarBlancos(coordenadasButton[0], coordenadasButton[1], 2);
             ArrayList<String> permutacionesPosibles = new ArrayList<>();
             String[] elem = {"1","2","3","4","5","6","7","8","9"};
@@ -416,14 +414,12 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             if(permutacionesPosibles.size()<=1){//FIXME posible error
                 System.out.println(permutacionesPosibles.get(0));
                 System.out.println(coordenadasButton[0]+" "+coordenadasButton[1]);
-
             }
             int permutacionRandom = rand.nextInt(permutacionesPosibles.size());//(max - min +1) + min
             String permutacionEscogida = permutacionesPosibles.get(permutacionRandom); //Escoge una de las posibles permutaciones
             establecerPermutacionACasillasBlancasAbajo(coordenadasButton[0],coordenadasButton[1],permutacionEscogida,2); //Setea el boton actual con la permutacion escogida
             ArrayList<String> hacerListasDerecha =  verificarNoRepetidosFila(coordenadasButton[0],coordenadasButton[1],1); //Guarda las coordenadas del botonNegro si hay repetidos al revisar los blancos, si esta vacio es que no habia repetidos para la derecha
             ArrayList<String> hacerListasIzquierda = verificarNoRepetidosFila(coordenadasButton[0],coordenadasButton[1],2); // Igual que la de arriba solo que verifica para la izquierda
-
             while(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty()){ //while hasta que ya no hayan repetidos.
                 for(int i=0;i<permutacionesPosibles.size();i++) { //En caso de que la aleatoria no sirviera, se prueba con todas las permutaciones
                   //  permutacionRandom = rand.nextInt(permutacionesPosibles.size() - 1 - 1 + 1) + 1;//(max - min +1) + min
@@ -436,7 +432,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         break;
                     }
                     if(i == permutacionesPosibles.size()){ //En el caso extremo de que ninguna permutacion sirva, le indico que cambie la clave, actualize el valor, limpie las permutaciones, y vuelva a empezar a verificar permutaciones con la nueva clave.
-                        cambiarClave(button,valor);// ver funcion
+                        cambiarClave(button,valor, textoAnterior);// ver funcion
                         valor = Integer.parseInt(button.getText().replace("       ", "").replace("1-9", "").replace("\n", "").replace("*",""));
                         permutacionesPosibles.clear();
                         Permutaciones(elem, "", cont, 9, permutacionesPosibles, valor);
@@ -455,6 +451,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }*/
         }
         for (Button button : revisarColumna) {
+            String textoAnterior = button.getText();
             int[] coordenadas = buscarNodoAux(button);
             coordenadas[1]+=1;
             Button aux = (Button) buscarNodo(coordenadas[0], coordenadas[1]);
@@ -475,7 +472,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             coordenadas = buscarNodoAux(button);
             int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 1);
             if(blancos == valoresSetteados.length){
-                button.setText("       "+Integer.toString(cuenta));
+                textoAnterior = textoAnterior.replace("*", Integer.toString(cuenta));
+                button.setText(textoAnterior);
             }
             else{
                 while(valoresSetteadosInts.size() != blancos){
@@ -489,9 +487,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 for (Integer valorSetteado : valoresSetteadosInts) {
                     cuenta+=valorSetteado;
                 }
-                String x = button.getText();
-                x = x.replace("*", Integer.toString(cuenta));
-                button.setText(x);
+                textoAnterior = textoAnterior.replace("*", Integer.toString(cuenta));
+                button.setText(textoAnterior);
             }
         }
         clearBlancos();
@@ -885,7 +882,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     }
 
-    public void cambiarClave(Button botonACambias,int claveAnterior){
+    public void cambiarClave(Button botonACambias,int claveAnterior, String clave){
 
         int[] coordenadas = buscarNodoAux(botonACambias);
 
@@ -901,7 +898,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
              nuevoValor = rand.nextInt(posibleValor[1]-posibleValor[0]+1)+posibleValor[0];
         }
         String x = botonACambias.getText();
-        x = x.replace(Integer.toString(claveAnterior), Integer.toString(nuevoValor));//FIXME Creo que con ese .replace ya funciona todo bien
+        x = x.replace("*", Integer.toString(nuevoValor));//FIXME Creo que con ese .replace ya funciona todo bien
         botonACambias.setText(x);
     }
 
