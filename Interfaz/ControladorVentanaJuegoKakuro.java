@@ -1,4 +1,5 @@
 package Interfaz;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -18,6 +19,9 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 /**
  * Created by Francisco Contreras on 30/03/2017.
+ * NOTAS IMPORTANTES:
+ * Le agregue un - cuando setea las claves para que sea mas facil guardar el archivo
+ * Lo de guardar archivo aun no esta terminado por el problema de las claves y unn problema para parsear claves que van solo hacia abajo y no tinen nada mas
  */
 public class ControladorVentanaJuegoKakuro implements Initializable {
 
@@ -279,6 +283,22 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     }
                 }
             }
+            for(int i = 0; i <= 13; i++){
+                for(int j = 0; j <= 13; j++){
+                    Button actual = (Button) buscarNodo(i,j);
+                    if(actual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
+                        String texto = actual.getText();//FIXME logica para parsear claves que solo van hacia abajo o hacia la derecha y no tienen nada mas
+                        if(texto!=""){
+                            String[] numeros = texto.replace("       ", "").split("\n");
+                            for (String numero : numeros) {
+                                System.out.print(numero+",");
+                            }
+                            int[] coordenadas = buscarNodoAux(actual);
+                            System.out.println("\nCoordenadas: "+coordenadas[0]+" "+coordenadas[1]);
+                        }
+                    }
+                }
+            }
             return true;
         }
         catch(IOException e){e.printStackTrace(); return false;}
@@ -319,7 +339,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     rangoAbajo = establecerLimitesSuma(blancosDerecha, blancosAbajo, 2);
                     // No pongo condicion de si para cualquier lado es nulo porque al final no va a hacer nada
                     if(blancosDerecha==0 & blancosAbajo == 1){ //solo hay una casilla hacia abajo y a la derecha nulo
-                        botonAux.setText("\n1-9");
+                        botonAux.setText("       -\n1-9");
                     }
                     else  if(blancosDerecha==1 & blancosAbajo == 0){ //solo hay una casilla hacia la derecha y hacia abajo nulo
                         botonAux.setText("       1-9");
@@ -374,16 +394,16 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     }
                     else if(blancosAbajo !=0 & blancosDerecha ==0){ // hay mas de una para abajo y ninguna para la derecha
                         if(filaColumnaSola(i,j,1))
-                            botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                            botonAux.setText("       -\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                         else{
-                            botonAux.setText("\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
+                            botonAux.setText("       -\n"+(rand.nextInt(rangoAbajo[1]-rangoAbajo[0]+1) +rangoAbajo[0]));
                             revisarFila.add(botonAux);
                         }
                     }
                 }
             }
         }
-        for (Button button : revisarFila) {
+        for (Button button : revisarFila) {//FIXME si se intenta settear una clave con muchos a la derecha y muchos hacia abajo se pueden sobre escribir
           //  button.setStyle("-fx-base: #FF0000;");
             int valor = Integer.parseInt(button.getText().replace("       ", "").split("\n")[1]);
             //System.out.println(valor);
@@ -393,7 +413,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             ArrayList<String> permutacionesPosibles = new ArrayList<>();
             String[] elem = {"1","2","3","4","5","6","7","8","9"};
             Permutaciones(elem, "", cont, 9, permutacionesPosibles, valor);
-            if(permutacionesPosibles.size()<=1){
+            if(permutacionesPosibles.size()<=1){//FIXME posible error
                 System.out.println(permutacionesPosibles.get(0));
                 System.out.println(coordenadasButton[0]+" "+coordenadasButton[1]);
 
@@ -455,7 +475,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             coordenadas = buscarNodoAux(button);
             int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 1);
             if(blancos == valoresSetteados.length){
-                button.setText(Integer.toString(cuenta));
+                button.setText("       "+Integer.toString(cuenta));
             }
             else{
                 while(valoresSetteadosInts.size() != blancos){
@@ -464,17 +484,17 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         valor = rand.nextInt((9-1)+1)+1;
                     }
                     valoresSetteadosInts.add(valor);
-                    printearBoton(valor, button);
                 }
                 cuenta=0;
                 for (Integer valorSetteado : valoresSetteadosInts) {
                     cuenta+=valorSetteado;
                 }
-                button.setText(Integer.toString(cuenta));
+                String x = button.getText();
+                x = x.replace("*", Integer.toString(cuenta));
+                button.setText(x);
             }
-
-            //button.setStyle("-fx-opacity: 1; -fx-base: #00FF00;");
         }
+        clearBlancos();
     }
 
     public void printearBoton(int valor, Button negro){
@@ -880,8 +900,20 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         while(claveAnterior==nuevoValor){ //Para que no sea el mismo valor que el anterior, while hasta que sea distinto
              nuevoValor = rand.nextInt(posibleValor[1]-posibleValor[0]+1)+posibleValor[0];
         }
-        botonACambias.setText(nuevoValor+""); //FIXME Falta preguntar todos los casos para saber como esta el formato del boton y poder escribirle el valor con el formato correcto.
-        //if(botonACambias.getText().equals())
-
+        String x = botonACambias.getText();
+        x = x.replace(Integer.toString(claveAnterior), Integer.toString(nuevoValor));//FIXME Creo que con ese .replace ya funciona todo bien
+        botonACambias.setText(x);
     }
+
+    public void clearBlancos(){
+        for(int i = 0; i <= 13; i++){
+            for(int j = 0; j <= 13; j++){
+                Button actual = (Button) buscarNodo(i,j);
+                if(!actual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
+                    //actual.setStyle("-fx-opacity: 1; -fx-base: #0000FF;");
+                    actual.setText("");
+                }
+            }
+        }
+    }//Limpiar los numeros de los botones
 }
