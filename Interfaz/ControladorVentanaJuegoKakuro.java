@@ -53,6 +53,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     String datosCarga = "";
 
+    String[] numeros = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
+
     ArrayList<String[]> datosCarga2 = new ArrayList<>();
 
     ArrayList<int[]> x = new ArrayList<>();
@@ -115,8 +117,69 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public void resolver(){
+        ArrayList<Button> negrosConClave = new ArrayList<>();
         for (Button negro : negros) {
-            negro.setStyle("-fx-opacity: 1; -fx-base: #ff00ff;");
+            if(!negro.getText().equals("")){
+                negrosConClave.add(negro);
+            }
+        }
+        int[] coordenadas;
+        for (Button button : negrosConClave) {
+            coordenadas = buscarNodoAux(button);
+            String[] texto = button.getText().replace("       ", "").split("\n");
+            if(!texto[1].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 1)){
+                //columnaSola
+                int valorClave=0;
+                if(!texto[1].equals("1-9")) {
+                    valorClave = Integer.parseInt(texto[1]);
+                    ArrayList<String> permutaciones = new ArrayList<>();
+                    int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 2);
+                    Permutaciones(numeros, "", blancos, 9, permutaciones, valorClave);
+                    printearColumna(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
+                }
+                else{
+                    Button actual = (Button) buscarNodo(coordenadas[0]+1, coordenadas[1]);
+                    actual.setText(rand.nextInt(9)+1 +"");
+                }
+
+            }
+            if (!texto[0].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 2)){
+                //filaSola
+                int valorClave=0;
+                if(!texto[0].equals("1-9")) {
+                    valorClave = Integer.parseInt(texto[0]);
+                    ArrayList<String> permutaciones = new ArrayList<>();
+                    int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 1);
+                    Permutaciones(numeros, "", blancos, 9, permutaciones, valorClave);
+                    printearFila(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
+                }
+            }
+        }
+    }
+
+    public void printearColumna(int fila, int columna, String permutacion, int blancos){
+        fila++;
+        String[] array = permutacion.split(",");
+        int cont = 0;
+        while(blancos!=0){
+            Button actual = (Button) buscarNodo(fila, columna);
+            actual.setText(array[cont]);
+            cont++;
+            blancos--;
+            fila++;
+        }
+    }
+
+    public void printearFila(int fila, int columna,  String permutacion, int blancos){
+        columna++;
+        String[] array = permutacion.split(",");
+        int cont = 0;
+        while(blancos!=0){
+            Button actual = (Button) buscarNodo(fila, columna);
+            actual.setText(array[cont]);
+            cont++;
+            blancos--;
+            columna++;
         }
     }
 
@@ -311,7 +374,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                             String[] numeros = texto.replace("       ", "").split("\n");
                             texto = "";
                             int[] coordenadas = buscarNodoAux(actual);
-                            texto+=coordenadas[0]+","+coordenadas[1]+" "+numeros[0]+" "+numeros[1]+"\n\n";
+                            texto+=coordenadas[0]+","+coordenadas[1]+" "+numeros[1]+" "+numeros[0]+"\n\n";
                             writer.write(texto);
                         }
                     }
@@ -503,7 +566,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     valoresSetteadosInts.add(valor);
                     //printearBoton(valor, button);
                 }
-
                 cuenta=0;
                 for (Integer valorSetteado : valoresSetteadosInts) {
                     cuenta+=valorSetteado;
