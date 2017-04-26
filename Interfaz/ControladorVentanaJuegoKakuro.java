@@ -503,6 +503,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     valoresSetteadosInts.add(valor);
                     //printearBoton(valor, button);
                 }
+
                 cuenta=0;
                 for (Integer valorSetteado : valoresSetteadosInts) {
                     cuenta+=valorSetteado;
