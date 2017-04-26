@@ -73,6 +73,15 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 Button botonJuego = new Button();
                 botonJuego.setMaxSize(80,80);
                 matrizJuego.add(botonJuego,i,j,1,1);// i = columna, j=fila
+                botonJuego.setOnAction(event -> {
+                    int[] c = buscarNodoAux(botonJuego);
+                    ArrayList<int[]> x = new ArrayList<>();
+                    intersecciones(c[0], c[1], x, botonJuego);
+                    for (int[] ints : x) {
+                        Button a = (Button) buscarNodo(ints[0], ints[1]);
+                        a.setStyle("-fx-opacity: 1; -fx-base: #00FFFF;");
+                    }
+                });
             }
         }
         saveButton.setOnAction(event ->{
@@ -84,19 +93,19 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             hilos=hilosRadio.isSelected();
             forks=forksRadio.isSelected();
             if(hilos && forks){
-                System.out.println("Resolver Sin paralelo");
+                //System.out.println("Resolver Sin paralelo");
                 labelError.setText("Hilos y forks Seleccionados!\nResolviendo con ninguno");
             }
             else if(hilos){
-                System.out.println("Resolver con hilos");
+                //System.out.println("Resolver con hilos");
                 labelError.setText("Hilos Seleccionados!!");
             }
             else if(forks){
-                System.out.println("Resolver con Forks");
+                //System.out.println("Resolver con Forks");
                 labelError.setText("Forks Seleccionados!!");
             }
             else{
-                System.out.println("Resolver sin paralelo");
+                //System.out.println("Resolver sin paralelo");
                 labelError.setText("Resolviendo con ninguno");
             }
         });
@@ -283,7 +292,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     }
                 }
             }
-            writer.write("Claves: Machote -> fila,columna down left si la clave es nula poner un -");
+            writer.write("\nClaves: Machote -> fila,columna down left si la clave es nula poner un -\n");
             for(int i = 0; i <= 13; i++){
                 for(int j = 0; j <= 13; j++){
                     Button actual = (Button) buscarNodo(i,j);
@@ -482,6 +491,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         valor = rand.nextInt((9-1)+1)+1;
                     }
                     valoresSetteadosInts.add(valor);
+                    printearBoton(valor, button);
                 }
                 cuenta=0;
                 for (Integer valorSetteado : valoresSetteadosInts) {
@@ -491,7 +501,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 button.setText(textoAnterior);
             }
         }
-        clearBlancos();
+        //clearBlancos();
     }
 
     public void printearBoton(int valor, Button negro){
@@ -499,6 +509,9 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         while(coordenadas[1]!=13){ //Hacia Derecha
             coordenadas[1]+=1;
             negro = (Button) buscarNodo(coordenadas[0],coordenadas[1]);
+            if(negro.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
+                break;
+            }
             if((negro.getText().equals(""))){
                 negro.setText(valor+"");
                 break;
