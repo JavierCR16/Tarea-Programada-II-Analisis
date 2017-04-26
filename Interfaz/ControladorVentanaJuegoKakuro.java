@@ -61,6 +61,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     ArrayList<Button> revisarColumna = new ArrayList<>();
 
+    ArrayList<Button> negros = new ArrayList<>();
+
     boolean hilos, forks;
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
@@ -106,13 +108,16 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
             else{
                 //System.out.println("Resolver sin paralelo");
+                resolver();
                 labelError.setText("Resolviendo con ninguno");
             }
         });
     }
 
     public void resolver(){
-
+        for (Button negro : negros) {
+            negro.setStyle("-fx-opacity: 1; -fx-base: #ff00ff;");
+        }
     }
 
     public void propiedadesFilaColumna(){
@@ -319,6 +324,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     public void setEstilo(Button boton){
         boton.setStyle("-fx-opacity: 1; -fx-base: #000000;");
+        negros.add(boton);
     }
 
     public int desplazamiento(int FILCOL){
