@@ -111,6 +111,10 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         });
     }
 
+    public void resolver(){
+
+    }
+
     public void propiedadesFilaColumna(){
         for(ColumnConstraints columnaMatriz: matrizJuego.getColumnConstraints()){
             columnaMatriz.setMinWidth(30);//10
