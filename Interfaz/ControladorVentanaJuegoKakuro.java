@@ -501,7 +501,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         valor = rand.nextInt((9-1)+1)+1;
                     }
                     valoresSetteadosInts.add(valor);
-                    printearBoton(valor, button);
+                    //printearBoton(valor, button);
                 }
                 cuenta=0;
                 for (Integer valorSetteado : valoresSetteadosInts) {
@@ -511,7 +511,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 button.setText(textoAnterior);
             }
         }
-        //clearBlancos();
+        clearBlancos();
     }
 
     public void printearBoton(int valor, Button negro){
