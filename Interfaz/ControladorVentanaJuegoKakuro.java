@@ -80,11 +80,14 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 botonJuego.setOnAction(event -> {
                     int[] c = buscarNodoAux(botonJuego);
                     ArrayList<int[]> x = new ArrayList<>();
+                    ArrayList<int[]> tmp = new ArrayList<>();
                     intersecciones(c[0], c[1], x, botonJuego);
                     for (int[] ints : x) {
                         Button a = (Button) buscarNodo(ints[0], ints[1]);
-                        a.setStyle("-fx-opacity: 1; -fx-base: #00FFFF;");
+                        a.setStyle("-fx-opacity: 1; -fx-base: #0000FF;");
+                        tmp.add(ints);
                     }
+                    pintarBordes(tmp);
                 });
             }
         }
@@ -154,6 +157,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     printearFila(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
                 }
             }
+
         }
     }
 
@@ -999,4 +1003,29 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
         }
     }//Limpiar los numeros de los botones
+
+    public void pintarBordes(ArrayList<int[]> arregloCoordenadas){
+
+        ArrayList<int []> temp = new ArrayList<>();
+
+        for (int[] arregloCoordenada : arregloCoordenadas) {
+            Button botonPrueba = null;
+            Button botonPruebaxd = null;
+            if (arregloCoordenada[0] - 1 >= 0) {
+                botonPrueba = (Button) buscarNodo(arregloCoordenada[0] - 1, arregloCoordenada[1]);
+            }
+            if (arregloCoordenada[0] - 1 >= 0){
+                botonPruebaxd = (Button) buscarNodo(arregloCoordenada[0], arregloCoordenada[1] - 1);
+            }
+            if(botonPrueba!=null && botonPrueba.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
+                int[] coordenadas = buscarNodoAux(botonPrueba);
+                temp.add(coordenadas);
+            }
+            if(botonPruebaxd != null && botonPruebaxd.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")) {
+                int[] coordenadas = buscarNodoAux(botonPruebaxd);
+                temp.add(coordenadas);
+            }
+
+        }
+    }
 }
