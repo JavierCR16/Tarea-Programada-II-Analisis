@@ -57,13 +57,15 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     ArrayList<String[]> datosCarga2 = new ArrayList<>();
 
-    ArrayList<int[]> x = new ArrayList<>();
-
     ArrayList<Button> revisarFila = new ArrayList<>();
 
     ArrayList<Button> revisarColumna = new ArrayList<>();
 
     ArrayList<Button> negros = new ArrayList<>();
+
+    ArrayList<Button> matriz = new ArrayList<>();
+
+    ArrayList<Islas> islasArray = new ArrayList<>();
 
     boolean hilos, forks;
 
@@ -77,18 +79,14 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 Button botonJuego = new Button();
                 botonJuego.setMaxSize(80,80);
                 matrizJuego.add(botonJuego,i,j,1,1);// i = columna, j=fila
+                matriz.add(botonJuego);/*
                 botonJuego.setOnAction(event -> {
-                    int[] c = buscarNodoAux(botonJuego);
-                    ArrayList<int[]> x = new ArrayList<>();
-                    ArrayList<int[]> tmp = new ArrayList<>();
-                    intersecciones(c[0], c[1], x, botonJuego);
-                    for (int[] ints : x) {
-                        Button a = (Button) buscarNodo(ints[0], ints[1]);
-                        a.setStyle("-fx-opacity: 1; -fx-base: #0000FF;");
-                        tmp.add(ints);
+                    /*
+                    for (int[] ints : tmp) {
+                        Button yh = (Button) buscarNodo(ints[0], ints[1]);
+                        yh.setStyle("-fx-opacity: 1; -fx-base: #550000;");
                     }
-                    pintarBordes(tmp);
-                });
+                });*/
             }
         }
         saveButton.setOnAction(event ->{
@@ -159,6 +157,45 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
 
         }
+        while(true) {
+            ArrayList<int[]> isla = new ArrayList<>();
+            ArrayList<int[]> islaAlrededores = null;
+            Button primerBlanco = primerBlanco();
+            if(primerBlanco==null) break;
+            coordenadas = buscarNodoAux(primerBlanco);
+            intersecciones(coordenadas[0], coordenadas[1], isla, primerBlanco);
+            Islas nueva = new Islas(isla, islaAlrededores);
+            islasArray.add(nueva);
+            for (int[] ints : isla) {
+                Button x = (Button) buscarNodo(ints[0], ints[1]);
+                x.setText("isla"+islasArray.size());
+            }
+        }
+        ArrayList<HilosResolver> hilos = new ArrayList<>();
+        for (Islas islas : islasArray) {
+            HilosResolver hilo = new HilosResolver(islas);
+            hilo.run();
+            hilos.add(hilo);
+        }
+    }
+
+    public Button primerBlanco(){
+        Button actual = null;
+        int[] coordenadas = {1,1};
+        while(coordenadas[0]<=13 && coordenadas[1]<=13){
+            actual = (Button) buscarNodo(coordenadas[0], coordenadas[1]);
+            if(actual.getText().equals("") && !actual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
+                return actual;
+            }
+            else if(coordenadas[1]+1<=13){
+                coordenadas[1]+=1;
+            }
+            else{
+                coordenadas[0]+=1;
+                coordenadas[1]=0;
+            }
+        }
+        return null;
     }
 
     public void printearColumna(int fila, int columna, String permutacion, int blancos){
@@ -1004,7 +1041,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         }
     }//Limpiar los numeros de los botones
 
-    public void pintarBordes(ArrayList<int[]> arregloCoordenadas){
+    public ArrayList<int[]> pintarBordes(ArrayList<int[]> arregloCoordenadas){
 
         ArrayList<int []> temp = new ArrayList<>();
 
@@ -1025,7 +1062,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 int[] coordenadas = buscarNodoAux(botonPruebaxd);
                 temp.add(coordenadas);
             }
-
         }
+        return temp;
     }
 }
