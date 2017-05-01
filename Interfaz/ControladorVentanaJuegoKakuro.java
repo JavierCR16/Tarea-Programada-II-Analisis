@@ -150,6 +150,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             hilos.add(hilo);
         }
         hilos.get(0).run();
+        hilos.get(1).run();
         for (Button button : negrosConClave) {
             coordenadas = buscarNodoAux(button);
             String[] texto = button.getText().replace("       ", "").split("\n");
@@ -524,7 +525,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 }
             }
         }
-        for (Button button : revisarFila) {//FIXME si se intenta settear una clave con muchos a la derecha y muchos hacia abajo se pueden sobre escribir
+        for (Button button : revisarFila) {
             String textoAnterior = button.getText();
             int valor = Integer.parseInt(button.getText().replace("       ", "").split("\n")[1]);
             int[] coordenadasButton = buscarNodoAux(button);
@@ -532,7 +533,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             ArrayList<String> permutacionesPosibles = new ArrayList<>();
             String[] elem = {"1","2","3","4","5","6","7","8","9"};
             Permutaciones(elem, "", cont, 9, permutacionesPosibles, valor);
-            if(permutacionesPosibles.size()<=1){//FIXME posible error
+            if(permutacionesPosibles.size()<=1){
                 System.out.println(permutacionesPosibles.get(0));
                 System.out.println(coordenadasButton[0]+" "+coordenadasButton[1]);
             }
@@ -550,9 +551,9 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     if(!(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty())){ //En caso de encontras una buena permutacion, salgase del for, se saldra de una vez del while
                         break;
                     }
-                    if(i == permutacionesPosibles.size()){ //En el caso extremo de que ninguna permutacion sirva, le indico que cambie la clave, actualize el valor, limpie las permutaciones, y vuelva a empezar a verificar permutaciones con la nueva clave.
+                    if(i == permutacionesPosibles.size()-1){ //En el caso extremo de que ninguna permutacion sirva, le indico que cambie la clave, actualize el valor, limpie las permutaciones, y vuelva a empezar a verificar permutaciones con la nueva clave.
                         cambiarClave(button,valor, textoAnterior);// ver funcion
-                        valor = Integer.parseInt(button.getText().replace("       ", "").replace("1-9", "").replace("\n", "").replace("*",""));
+                        valor = Integer.parseInt(button.getText().replace("       ", "").split("\n")[1]);
                         permutacionesPosibles.clear();
                         Permutaciones(elem, "", cont, 9, permutacionesPosibles, valor);
                     }
@@ -932,7 +933,10 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
         int contador =0;
         int cuantosCuadrosRecorrer = verificarBlancos(fila,columna,2);
-        fila+=1;
+        if(fila<13)
+            fila+=1;
+        else
+            return new ArrayList<String>();
         int respaldoColumna= columna;
         Button botonRepetido=(Button) buscarNodo(fila,columna);
         String numeroEnBoton = botonRepetido.getText();
@@ -1005,7 +1009,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
              nuevoValor = rand.nextInt(posibleValor[1]-posibleValor[0]+1)+posibleValor[0];
         }
         String x = botonACambias.getText();
-        //x = x.replace("*", Integer.toString(nuevoValor));
+        x = x.replace(String.valueOf(claveAnterior), Integer.toString(nuevoValor));
         botonACambias.setText(x);
     }
 
