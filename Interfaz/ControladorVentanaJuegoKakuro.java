@@ -125,6 +125,31 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
         }
         int[] coordenadas;
+        while(true) {
+            ArrayList<int[]> isla = new ArrayList<>();
+            ArrayList<int[]> islaAlrededores = null;
+            Button primerBlanco = primerBlanco();
+            if(primerBlanco==null) break;
+            coordenadas = buscarNodoAux(primerBlanco);
+            intersecciones(coordenadas[0], coordenadas[1], isla, primerBlanco);
+            islaAlrededores=pintarBordes(isla);
+            Islas nueva = new Islas(isla, islaAlrededores);
+            islasArray.add(nueva);
+            for (int[] ints : isla) {
+                Button x = (Button) buscarNodo(ints[0], ints[1]);
+                x.setText("isla"+islasArray.size());
+            }
+        }
+        clearBlancos();
+        ArrayList<HilosResolver> hilos = new ArrayList<>();
+        int c =0;
+        for (Islas islas : islasArray) {
+            c++;
+            HilosResolver hilo = new HilosResolver(islas, this, c);
+            //hilo.run();
+            hilos.add(hilo);
+        }
+        hilos.get(0).run();
         for (Button button : negrosConClave) {
             coordenadas = buscarNodoAux(button);
             String[] texto = button.getText().replace("       ", "").split("\n");
@@ -142,10 +167,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     Button actual = (Button) buscarNodo(coordenadas[0]+1, coordenadas[1]);
                     actual.setText(rand.nextInt(9)+1 +"");
                 }
-
             }
             if (!texto[0].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 2)){
-                //filaSola
                 int valorClave=0;
                 if(!texto[0].equals("1-9")) {
                     valorClave = Integer.parseInt(texto[0]);
@@ -155,27 +178,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     printearFila(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
                 }
             }
-
-        }
-        while(true) {
-            ArrayList<int[]> isla = new ArrayList<>();
-            ArrayList<int[]> islaAlrededores = null;
-            Button primerBlanco = primerBlanco();
-            if(primerBlanco==null) break;
-            coordenadas = buscarNodoAux(primerBlanco);
-            intersecciones(coordenadas[0], coordenadas[1], isla, primerBlanco);
-            Islas nueva = new Islas(isla, islaAlrededores);
-            islasArray.add(nueva);
-            for (int[] ints : isla) {
-                Button x = (Button) buscarNodo(ints[0], ints[1]);
-                x.setText("isla"+islasArray.size());
-            }
-        }
-        ArrayList<HilosResolver> hilos = new ArrayList<>();
-        for (Islas islas : islasArray) {
-            HilosResolver hilo = new HilosResolver(islas);
-            hilo.run();
-            hilos.add(hilo);
         }
     }
 
@@ -246,10 +248,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             setEstilo(botonTablero);
             setEstilo(botonTablero2);
         }
-
         int randomNegros = rand.nextInt(162-1+1)+1;;
         int contador= 0;
-
         int fila;
         int columna;
         while(contarCuadros()<=82){
@@ -326,10 +326,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         this.datosCarga2 = datos2;
     }
 
-    public boolean enPenultimas(int fila, int columna){
-        return fila==12 | columna ==12;
-    }
-
     public int contarCuadros(){
         int contador=0;
         for(int i=1;i<14;i++){
@@ -367,7 +363,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 break;
             contador+=1;
         }
-       // System.out.println("Blancos Derecha: "+contador);
         if(contador >9)
             return false;
         return true;
@@ -381,7 +376,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 break;
             contador+=1;
         }
-      //  System.out.println("Blancos Abajo: "+contador);
         if(contador >9)
             return false;
         return true;
@@ -389,7 +383,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     public boolean guardarKakuro(){
         String nombreArchivo = "Kakuro"+dateFormat.format(date)+".txt";
-
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(nombreArchivo), "utf-8"))){
             for(int i=0;i<14;i++){
                 for(int j=0;j<14;j++){
@@ -410,7 +403,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 for(int j = 0; j <= 13; j++){
                     Button actual = (Button) buscarNodo(i,j);
                     if(actual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
-                        String texto = actual.getText();//FIXME logica para parsear claves que solo van hacia abajo o hacia la derecha y no tienen nada mas
+                        String texto = actual.getText();
                         if(texto!=""){
                             String[] numeros = texto.replace("       ", "").split("\n");
                             texto = "";
@@ -428,6 +421,11 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     public void setEstilo(Button boton){
         boton.setStyle("-fx-opacity: 1; -fx-base: #000000;");
+        negros.add(boton);
+    }
+
+    public void setEstilo(Button boton, String style){
+        boton.setStyle(style);
         negros.add(boton);
     }
 
@@ -545,9 +543,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             ArrayList<String> hacerListasIzquierda = verificarNoRepetidosFila(coordenadasButton[0],coordenadasButton[1],2); // Igual que la de arriba solo que verifica para la izquierda
             while(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty()){ //while hasta que ya no hayan repetidos.
                 for(int i=0;i<permutacionesPosibles.size();i++) { //En caso de que la aleatoria no sirviera, se prueba con todas las permutaciones
-                  //  permutacionRandom = rand.nextInt(permutacionesPosibles.size() - 1 - 1 + 1) + 1;//(max - min +1) + min
                     permutacionEscogida = permutacionesPosibles.get(i);
-                    //System.out.println("Viendo a ver si sirve la permutacion: "+permutacionEscogida);
                     establecerPermutacionACasillasBlancasAbajo(coordenadasButton[0], coordenadasButton[1], permutacionEscogida, 2);
                     hacerListasDerecha = verificarNoRepetidosFila(coordenadasButton[0], coordenadasButton[1], 1); //Verifico que no se repita hacia la derecha algun numero con la permutacion escogida
                     hacerListasIzquierda = verificarNoRepetidosFila(coordenadasButton[0], coordenadasButton[1], 2); //Lo mismo solo que a la izquerda
@@ -562,16 +558,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     }
                 }
             }
-            /*
-            if(!hacerListasDerecha.isEmpty() | !hacerListasIzquierda.isEmpty()) {
-                System.out.println("En la posicion: " + coordenadasButton[0] + "," + coordenadasButton[1] + " hay repetidos en las posiciones:");
-                for (String s : hacerListasDerecha) {
-                    System.out.println(s);
-                }
-                for (String s : hacerListasIzquierda) {
-                    System.out.println(s);
-                }
-            }*/
         }
         for (Button button : revisarColumna) {
             String textoAnterior = button.getText();
@@ -605,7 +591,6 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                         valor = rand.nextInt((9-1)+1)+1;
                     }
                     valoresSetteadosInts.add(valor);
-                    //printearBoton(valor, button);
                 }
                 cuenta=0;
                 for (Integer valorSetteado : valoresSetteadosInts) {
@@ -816,10 +801,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public boolean arribaAbajoNulo(int fila, int columna){
-
         Button botonBuscar = (Button)buscarNodo(fila,columna);
-
-      return botonBuscar.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;");
+        return botonBuscar.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;");
     }
 
     public int [] buscarNodoAux(Button boton){
@@ -952,11 +935,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         fila+=1;
         int respaldoColumna= columna;
         Button botonRepetido=(Button) buscarNodo(fila,columna);
-
-
         String numeroEnBoton = botonRepetido.getText();
         boolean usarPosiciones = false;
-
         switch (opcion){
             case 1:
                 //columna = columna+1;
@@ -1009,7 +989,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
 
     }
 
-    public void cambiarClave(Button botonACambias,int claveAnterior, String clave){
+    public void cambiarClave(Button botonACambias,int claveAnterior, String clave){//FIXME POSIBLE RAZON DE QUE SE ENCICLIE POR LA CLAVE
 
         int[] coordenadas = buscarNodoAux(botonACambias);
 
@@ -1025,7 +1005,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
              nuevoValor = rand.nextInt(posibleValor[1]-posibleValor[0]+1)+posibleValor[0];
         }
         String x = botonACambias.getText();
-        x = x.replace("*", Integer.toString(nuevoValor));//FIXME Creo que con ese .replace ya funciona todo bien
+        //x = x.replace("*", Integer.toString(nuevoValor));
         botonACambias.setText(x);
     }
 
@@ -1042,9 +1022,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }//Limpiar los numeros de los botones
 
     public ArrayList<int[]> pintarBordes(ArrayList<int[]> arregloCoordenadas){
-
         ArrayList<int []> temp = new ArrayList<>();
-
         for (int[] arregloCoordenada : arregloCoordenadas) {
             Button botonPrueba = null;
             Button botonPruebaxd = null;
