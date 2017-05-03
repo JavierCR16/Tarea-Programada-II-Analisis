@@ -19,9 +19,6 @@ import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 /**
  * Created by Francisco Contreras on 30/03/2017.
- * NOTAS IMPORTANTES:
- * Le agregue un - cuando setea las claves para que sea mas facil guardar el archivo
- * Lo de guardar archivo aun no esta terminado por el problema de las claves y unn problema para parsear claves que van solo hacia abajo y no tinen nada mas
  */
 public class ControladorVentanaJuegoKakuro implements Initializable {
 
@@ -146,11 +143,12 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         for (Islas islas : islasArray) {
             c++;
             HilosResolver hilo = new HilosResolver(islas, this, c);
-            //hilo.run();
+            hilo.run();
             hilos.add(hilo);
         }
-        hilos.get(0).run();
-        hilos.get(1).run();
+        //hilos.get(0).run();
+        //hilos.get(1).run();
+        //hilos.get(2).run();
         for (Button button : negrosConClave) {
             coordenadas = buscarNodoAux(button);
             String[] texto = button.getText().replace("       ", "").split("\n");
@@ -188,7 +186,18 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         while(coordenadas[0]<=13 && coordenadas[1]<=13){
             actual = (Button) buscarNodo(coordenadas[0], coordenadas[1]);
             if(actual.getText().equals("") && !actual.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;")){
-                return actual;
+                int blancosDerecha = verificarBlancos(coordenadas[0], coordenadas[1], 1);
+                int blancosAbajo = verificarBlancos(coordenadas[0], coordenadas[1], 2);
+                if(blancosAbajo != 0 || blancosDerecha != 0){
+                    return actual;
+                }
+                else if(coordenadas[1]+1<=13){
+                    coordenadas[1]+=1;
+                }
+                else{
+                    coordenadas[0]+=1;
+                    coordenadas[1]=0;
+                }
             }
             else if(coordenadas[1]+1<=13){
                 coordenadas[1]+=1;
@@ -253,7 +262,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int contador= 0;
         int fila;
         int columna;
-        while(contarCuadros()<=82){
+        while(contarCuadros()<=100){
             fila = rand.nextInt(13-0+1)+0;
             columna = rand.nextInt(13-0+1)+0;
             Button botonJuego = (Button) buscarNodo(fila, columna);
@@ -591,6 +600,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     while(valoresSetteadosInts.indexOf(valor)>=0){
                         valor = rand.nextInt((9-1)+1)+1;
                     }
+                    //printearBoton(valor ,button);
                     valoresSetteadosInts.add(valor);
                 }
                 cuenta=0;
@@ -876,8 +886,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 tmpFila--;
                 botonActual = (Button) buscarNodo(tmpFila, tmpColumna);
             }
-            botonActual = (Button) buscarNodo(fila, columna);//si encuentra boton negro significa que la casilla en la que esta dependera de el
-            botonActual.setText(tmpFila+","+tmpColumna);
+            //botonActual = (Button) buscarNodo(fila, columna);//si encuentra boton negro significa que la casilla en la que esta dependera de el
+            //botonActual.setText(tmpFila+","+tmpColumna);
             int[] aux = {tmpFila,tmpColumna};
             respuesta.add(aux);
             return dependencias(fila, columna+1, false, true, respuesta);//por recursividad se va buscando por toda la fila o columna
@@ -887,8 +897,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 tmpColumna--;
                 botonActual = (Button) buscarNodo(tmpFila, tmpColumna);
             }
-            botonActual = (Button) buscarNodo(fila, columna);
-            botonActual.setText(tmpFila+","+tmpColumna);
+            //botonActual = (Button) buscarNodo(fila, columna);
+            //botonActual.setText(tmpFila+","+tmpColumna);
             int[] aux = {tmpFila,tmpColumna};
             respuesta.add(aux);
             return dependencias(fila+1, columna, true, false, respuesta);
@@ -928,6 +938,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     }
 
     public ArrayList<String> verificarNoRepetidosFila(int fila, int columna, int opcion){
+
         ArrayList<String> posicionDondeHacerLista = new ArrayList<String>();
         posicionDondeHacerLista.add(fila + "," + columna);
 
@@ -944,46 +955,50 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         switch (opcion){
             case 1:
                 //columna = columna+1;
-                while(contador<cuantosCuadrosRecorrer) {
-                    botonRepetido = (Button) buscarNodo(fila, columna);
-                    numeroEnBoton = botonRepetido.getText();
-                    while (columna != 13) { //Hacia Derecha
-                        //posicionDondeHacerLista.add(fila + "," + columna);
-                        columna+=1;
+                if(cuantosCuadrosRecorrer>1) {
+                    while (contador < cuantosCuadrosRecorrer) {
                         botonRepetido = (Button) buscarNodo(fila, columna);
-                        if (numeroEnBoton.equals(botonRepetido.getText())) {
-                           // posicionDondeHacerLista.add(fila + "," + columna);
-                            usarPosiciones = true;
+                        numeroEnBoton = botonRepetido.getText();
+                        while (columna != 13) { //Hacia Derecha
+                            //posicionDondeHacerLista.add(fila + "," + columna);
+                            columna += 1;
+                            botonRepetido = (Button) buscarNodo(fila, columna);
+                            if (numeroEnBoton.equals(botonRepetido.getText())) {
+                                // posicionDondeHacerLista.add(fila + "," + columna);
+                                usarPosiciones = true;
+                            }
+                            if (botonRepetido.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                                break;
+                            // contador++;
                         }
-                        if (botonRepetido.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
-                            break;
-                        // contador++;
+                        contador += 1;
+                        columna = respaldoColumna;
+                        fila += 1;
                     }
-                    contador+=1;
-                    columna=respaldoColumna;
-                    fila+=1;
                 }
                 break;
             case 2:
                 // fila = fila+1;
-                while(contador<cuantosCuadrosRecorrer) {
-                    botonRepetido = (Button) buscarNodo(fila, columna);
-                    numeroEnBoton = botonRepetido.getText();
-                    while (columna != 0) { //Hacia Izquierda
-                       // posicionDondeHacerLista.add(fila + "," + columna);
-                        columna-=1;
+                if(cuantosCuadrosRecorrer>1) {
+                    while (contador < cuantosCuadrosRecorrer) {
                         botonRepetido = (Button) buscarNodo(fila, columna);
-                        if (numeroEnBoton.equals(botonRepetido.getText())) {
-                            usarPosiciones = true;
-                          //  posicionDondeHacerLista.add(fila + "," + columna);
+                        numeroEnBoton = botonRepetido.getText();
+                        while (columna != 0) { //Hacia Izquierda
+                            // posicionDondeHacerLista.add(fila + "," + columna);
+                            columna -= 1;
+                            botonRepetido = (Button) buscarNodo(fila, columna);
+                            if (numeroEnBoton.equals(botonRepetido.getText())) {
+                                usarPosiciones = true;
+                                //  posicionDondeHacerLista.add(fila + "," + columna);
+                            }
+                            if (!numeroEnBoton.equals("") && botonRepetido.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
+                                break;
+                            //  contador++;
                         }
-                        if (botonRepetido.getStyle().equals("-fx-opacity: 1; -fx-base: #000000;"))
-                            break;
-                        //  contador++;
+                        columna = respaldoColumna;
+                        contador += 1;
+                        fila += 1;
                     }
-                    columna=respaldoColumna;
-                    contador+=1;
-                    fila+=1;
                 }
                 break;
         }

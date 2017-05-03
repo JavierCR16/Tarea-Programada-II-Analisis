@@ -1,7 +1,12 @@
 package Interfaz;
 
+import javafx.application.Platform;
 import javafx.scene.control.Button;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -62,6 +67,7 @@ public class HilosResolver extends Thread {
                     else
                         break;
                 }
+                break;
             case 2:
                 while(coor[0]!=13){
                     coor[0]+=1;
@@ -71,37 +77,99 @@ public class HilosResolver extends Thread {
                     else
                         break;
                 }
+                break;
         }
         return result;
     }
 
-    public int setUno_Nueve(int suma, int[] valores){
+    public int setUno_Nueve(int suma, ArrayList<Integer> valores, int cantidad){
         int sumaAux = 0;
         for (int valor : valores) {
             sumaAux+=valor;
         }
-        //FIXME VERIFICAFR QUE RETORNO NO ESTE YA SETEEADO
+
         return suma-sumaAux;
     }
 
-    public boolean validar(ArrayList<int[]> x, ArrayList<Button> fila){
-        /*
-        for (int[] aux : x) {
-            Button button = (Button) controlador.buscarNodo(aux[0], aux[1]);
+    public boolean validar(ArrayList<Button> x){
+        for (Button button : x) {
             int clave = getClave(button);
-            int suma = 0;
-            int cont = 0;
-            ArrayList<Button> propios = getBotonesPropios(button, 1);
-            for (Button propio : propios) {
-                String text = propio.getText();
-                if (!text.equals("")) {
-                    cont++;
-                    suma += Integer.parseInt(text);
+            if (clave != -1) {
+                int suma = 0;
+                int cont = 0;
+                int[] coor = controlador.buscarNodoAux(button);
+                int blancos = blancos = controlador.verificarBlancos(coor[0], coor[1], 1);
+                ArrayList<String> setteados = new ArrayList<>();
+                ArrayList<Button> propios = getBotonesPropios(button, 1);
+                ArrayList<Button> unoNueves = new ArrayList<>();
+                for (Button propio : propios) {
+                    String text = propio.getText();
+                    if (!text.equals("")) {
+                        setteados.add(text);
+                        cont++;
+                        suma += Integer.parseInt(text);
+                    } else {
+                        unoNueves.add(propio);
+                        int[] c = controlador.buscarNodoAux(button);
+                    }
+                }
+                if (suma > clave) {
+                    return false;
+                } else if (suma < clave && blancos == cont) {
+                    return false;
+                } else if (suma == clave && blancos != cont) {
+                    return false;
+                } else if (suma != clave && blancos != cont) {
+                    int cantUnoNueve = unoNueves.size();
+                    int diferencia = clave - suma;
+
+                    String[] elementos = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
+                    List<String> elementosArray = new ArrayList<>(Arrays.asList(elementos));
+                    elementosArray.removeAll(setteados);
+                    String[] nuevosElementos = new String[elementosArray.size()];
+                    nuevosElementos = elementosArray.toArray(nuevosElementos);
+
+                    ArrayList<String> permutacionesPosibles = new ArrayList<>();
+
+                    if (cantUnoNueve != 1) {
+                        controlador.Permutaciones(nuevosElementos, "", cantUnoNueve, nuevosElementos.length
+                                , permutacionesPosibles, diferencia);
+                        if (permutacionesPosibles.size() <= 1) {
+                            return false;
+                        }
+                        int sumaTemporal = suma;
+                        boolean sirvePermutacion = false;
+                        for (int i = 0; i < permutacionesPosibles.size(); i++) {
+                            String[] permActual = permutacionesPosibles.get(i).split(",");
+                            for (int j = 0; j < permActual.length; j++) {
+                                sumaTemporal += Integer.parseInt(permActual[j]);
+                            }
+                            if (sumaTemporal == clave) {
+                                sirvePermutacion = true;
+                                for (int w = 0; w < unoNueves.size(); w++) {
+                                    unoNueves.get(w).setText(permActual[w]);
+                                }
+                                break;
+                            } else {
+                                sirvePermutacion = false;
+                                sumaTemporal = suma;
+                            }
+                        }
+                        if (!sirvePermutacion)
+                            return false;
+
+                    } else {
+                        int masCercano = 0;
+                        if (!elementosArray.contains(diferencia) && diferencia >= 1 && diferencia <= 9) {
+                            masCercano = diferencia;
+                            unoNueves.get(0).setText(diferencia + "");
+                        } else
+                            return false;
+                    }
                 }
             }
-        }*/
-        for(Button aux1 : fila){
-            int[] coor = controlador.buscarNodoAux(aux1);
+        }
+        for(int[] coor : isla.negros){
             int tam = 0;
             tam+=controlador.verificarNoRepetidosFila(coor[0], coor[1], 1).size();
             tam+=controlador.verificarNoRepetidosFila(coor[0], coor[1], 2).size();
@@ -109,51 +177,43 @@ public class HilosResolver extends Thread {
                 return false;
             }
         }
-        /*
-            if(cont==propios.size())
-                if(suma==clave) {
-                    //controlador.verificarNoRepetidosFila()
-                    return true;
-                }
-                else
-                    return false;
-            else{
-                if(suma<clave)
-                    return true;
-                else
-                    return false;
-            }
-        }*/
         return true;
     }
 
     public int getClave(Button x){
         String tex = x.getText();
         String[] array = tex.replace("       ","").split("\n");
-        return Integer.parseInt(array[0]);
+        try{
+            return Integer.parseInt(array[0]);
+        }
+        catch (Exception e){
+            return -1;
+        }
     }
 
     public void run(){
         ArrayList<Button> revisarFila = new ArrayList<>();
         ArrayList<Button> revisarColumna = new ArrayList<>();
         while(!stop){
+            boolean continuar = false;/*
             for (int[] negro : isla.negros) {
-                Button x = (Button)controlador.buscarNodo(negro[0], negro[1]);
+                 continuar = controlador.filaColumnaSola(negro[0], negro[1], 1);
+                 if(continuar)
+                     break;
+            }*/
+            if(!continuar) {
+                int cont = 0;
+                for (int[] ints : isla.negros) {
+                    Button x = (Button) controlador.buscarNodo(ints[0], ints[1]);
+                    filaOcolumna(x, revisarColumna, revisarFila);
+                }
+                genPermutaciones(revisarColumna);
+                boolean retorno = resolver(permutacionPorBoton, revisarFila);
+                while (!retorno) {
+                    retorno = resolver(permutacionPorBoton, revisarFila);
+                }
+                this.stop = true;
             }
-            int cont = 0;
-            for (int[] ints : isla.negros) {
-                Button x = (Button) controlador.buscarNodo(ints[0], ints[1]);
-                filaOcolumna(x, revisarColumna, revisarFila);
-            }
-            for (Button button : revisarFila) {
-                ///controlador.setEstilo(button, "-fx-opacity: 1; -fx-base: #0000FF;");
-            }
-            genPermutaciones(revisarColumna);
-            boolean retorno = resolver(permutacionPorBoton, revisarFila);
-            while(!retorno){
-                retorno = resolver(permutacionPorBoton, revisarFila);
-            }
-            this.stop=true;
         }
     }
 
@@ -161,30 +221,47 @@ public class HilosResolver extends Thread {
         String[] x = {"1","2","3","4","5","6","7","8","9"};
         int blancos = 0;
         String[] clave;
+        boolean existe;
         for(Button boton : revisar){
             ArrayList<String> perm = new ArrayList<>();
             clave = boton.getText().replace("       ", "").split("\n");
             int[] coor = controlador.buscarNodoAux(boton);
             blancos = controlador.verificarBlancos(coor[0], coor[1], 2);
             controlador.Permutaciones(x, "", blancos, 9, perm, Integer.parseInt(clave[1]));
-            PermutacionPorBoton nueva = new PermutacionPorBoton(perm, boton);
-            permutacionPorBoton.add(nueva);
+            PermutacionPorBoton nueva = new PermutacionPorBoton(perm, boton, controlador);
+            existe = false;
+            for (PermutacionPorBoton porBoton : permutacionPorBoton) {
+                if(porBoton.boton.equals(boton)){
+                    existe = true;
+                    break;
+                }
+            }
+            if(!existe)
+                permutacionPorBoton.add(nueva);
         }
     }
 
-    public void setPermu(PermutacionPorBoton x){
+    public String setPermu(PermutacionPorBoton x){
         int index = rand.nextInt(x.permutaciones.size());
         String perm = x.permutaciones.get(index);
         int[] coor = controlador.buscarNodoAux(x.boton);
+        Platform.runLater(()->{controlador.establecerPermutacionACasillasBlancasAbajo(coor[0], coor[1], perm, 2);});
         controlador.establecerPermutacionACasillasBlancasAbajo(coor[0], coor[1], perm, 2);
+        return perm;
     }
 
 
     public boolean resolver(ArrayList<PermutacionPorBoton> clase, ArrayList<Button> fila){
+        String aux = "";
         for(PermutacionPorBoton instancia : clase){
-            setPermu(instancia);
+            aux+=setPermu(instancia);
         }
-        if(!validar(isla.negros, fila)){
+        if(isla.permUsadas.contains(aux))
+            return false;
+        else{
+            isla.permUsadas.add(aux);
+        }
+        if(!validar(fila)){
             return false;
         }
         return true;
