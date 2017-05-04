@@ -207,7 +207,8 @@ public class HilosResolver extends Thread {
                     Button x = (Button) controlador.buscarNodo(ints[0], ints[1]);
                     filaOcolumna(x, revisarColumna, revisarFila);
                 }
-                genPermutaciones(revisarColumna);
+                genPermutaciones(revisarColumna, 1);
+                //genPermutaciones(revisarFila, 0);
                 boolean retorno = resolver(permutacionPorBoton, revisarFila);
                 while (!retorno) {
                     retorno = resolver(permutacionPorBoton, revisarFila);
@@ -217,7 +218,7 @@ public class HilosResolver extends Thread {
         }
     }
 
-    public void genPermutaciones(ArrayList<Button> revisar){
+    public void genPermutaciones(ArrayList<Button> revisar, int opcion){//opcion 0 o 1
         String[] x = {"1","2","3","4","5","6","7","8","9"};
         int blancos = 0;
         String[] clave;
@@ -226,8 +227,8 @@ public class HilosResolver extends Thread {
             ArrayList<String> perm = new ArrayList<>();
             clave = boton.getText().replace("       ", "").split("\n");
             int[] coor = controlador.buscarNodoAux(boton);
-            blancos = controlador.verificarBlancos(coor[0], coor[1], 2);
-            controlador.Permutaciones(x, "", blancos, 9, perm, Integer.parseInt(clave[1]));
+            blancos = controlador.verificarBlancos(coor[0], coor[1], opcion+1);
+            controlador.Permutaciones(x, "", blancos, 9, perm, Integer.parseInt(clave[opcion]));
             PermutacionPorBoton nueva = new PermutacionPorBoton(perm, boton, controlador);
             existe = false;
             for (PermutacionPorBoton porBoton : permutacionPorBoton) {
@@ -245,7 +246,6 @@ public class HilosResolver extends Thread {
         int index = rand.nextInt(x.permutaciones.size());
         String perm = x.permutaciones.get(index);
         int[] coor = controlador.buscarNodoAux(x.boton);
-        Platform.runLater(()->{controlador.establecerPermutacionACasillasBlancasAbajo(coor[0], coor[1], perm, 2);});
         controlador.establecerPermutacionACasillasBlancasAbajo(coor[0], coor[1], perm, 2);
         return perm;
     }

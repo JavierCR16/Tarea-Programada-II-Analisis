@@ -444,9 +444,10 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         while(desplazamiento==0){
             desplazamiento = rand.nextInt(9-1+1) +1;
         }
-        desplazamiento = FILCOL+desplazamiento;
         if(FILCOL+desplazamiento >13)
             desplazamiento= FILCOL+desplazamiento-13;
+        else
+            desplazamiento = FILCOL+desplazamiento;
         return desplazamiento;
     }
 
