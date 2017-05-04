@@ -262,7 +262,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int contador= 0;
         int fila;
         int columna;
-        while(contarCuadros()<=100){
+        while(contarCuadros()<=110){
             fila = rand.nextInt(13-0+1)+0;
             columna = rand.nextInt(13-0+1)+0;
             Button botonJuego = (Button) buscarNodo(fila, columna);
@@ -329,6 +329,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         }
         verificarTodoBien();
         establecerNumeros();
+        clearBlancos();
     }
 
     public void setDatosCarga(String datos, ArrayList datos2){
@@ -600,6 +601,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     int valor = rand.nextInt((9-1)+1)+1;
                     while(valoresSetteadosInts.indexOf(valor)>=0){
                         valor = rand.nextInt((9-1)+1)+1;
+
                     }
                     //printearBoton(valor ,button);
                     valoresSetteadosInts.add(valor);
@@ -612,7 +614,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 button.setText(textoAnterior);
             }
         }
-        clearBlancos();
+        //clearBlancos();
     }
 
     public void printearBoton(int valor, Button negro){

@@ -20,6 +20,10 @@ public class HilosResolver extends Thread {
     public int i;
     public ControladorVentanaJuegoKakuro controlador;
     public ArrayList<PermutacionPorBoton>  permutacionPorBoton;
+    public ArrayList<Integer> indicesPermutaciones = new ArrayList<>();
+    public ArrayList<Integer> topesPermutaciones = new ArrayList<>();
+
+
 
     public HilosResolver(Islas arg, ControladorVentanaJuegoKakuro control, int id){
         isla = arg;
@@ -47,7 +51,7 @@ public class HilosResolver extends Thread {
                     revisarColumna.add(boton);
             }
             else if (numeros[1].equals("-")) {
-                if (!numeros[1].equals("1-9"))
+                if (!numeros[0].equals("1-9"))
                     revisarFila.add(boton);
             }
         }
@@ -209,6 +213,10 @@ public class HilosResolver extends Thread {
                 }
                 genPermutaciones(revisarColumna, 1);
                 //genPermutaciones(revisarFila, 0);
+                for(int i =0;i<permutacionPorBoton.size();i++){
+                    indicesPermutaciones.add(0);
+                    topesPermutaciones.add(permutacionPorBoton.get(i).permutaciones.size());
+                }
                 boolean retorno = resolver(permutacionPorBoton, revisarFila);
                 while (!retorno) {
                     retorno = resolver(permutacionPorBoton, revisarFila);
@@ -242,20 +250,29 @@ public class HilosResolver extends Thread {
         }
     }
 
-    public String setPermu(PermutacionPorBoton x){
-        int index = rand.nextInt(x.permutaciones.size());
-        String perm = x.permutaciones.get(index);
+    public String setPermu(PermutacionPorBoton x,int posicionBoton){
+      //  int index = rand.nextInt(x.permutaciones.size());
+        String perm = x.permutaciones.get(indicesPermutaciones.get(posicionBoton));
         int[] coor = controlador.buscarNodoAux(x.boton);
         controlador.establecerPermutacionACasillasBlancasAbajo(coor[0], coor[1], perm, 2);
         return perm;
     }
 
-
     public boolean resolver(ArrayList<PermutacionPorBoton> clase, ArrayList<Button> fila){
         String aux = "";
-        for(PermutacionPorBoton instancia : clase){
+
+      /*  for(PermutacionPorBoton instancia : clase){
             aux+=setPermu(instancia);
+
+      }*/
+        for(int i =0;i<clase.size();i++){
+            aux+=setPermu(clase.get(i),i);
         }
+
+        alterarIndicesPermutaciones();
+        verificarSiTope();
+
+
         if(isla.permUsadas.contains(aux))
             return false;
         else{
@@ -266,4 +283,57 @@ public class HilosResolver extends Thread {
         }
         return true;
     }
+
+    public void alterarIndicesPermutaciones(){
+
+        int indexer = 0;
+        boolean movimientoHecho = false;
+        boolean verQuenoHayanMasTopes = false;
+
+        while(!movimientoHecho){
+
+            while(!verQuenoHayanMasTopes){
+                if(indicesPermutaciones.get(indexer).equals(topesPermutaciones.get(indexer))){
+                    indicesPermutaciones.set(indexer,0);
+                    indexer++;
+                    movimientoHecho=true;
+
+                }
+                else{
+                    indicesPermutaciones.set(indexer,indicesPermutaciones.get(indexer)+1);
+
+                    movimientoHecho=true;
+                    verQuenoHayanMasTopes = true;
+                }
+
+            }
+
+        }
+
+    }
+
+    public void verificarSiTope(){
+
+        int indexer = 0;
+
+        boolean topesListos = false;
+
+        while(!topesListos){
+            if(indexer==indicesPermutaciones.size()){
+                break;
+            }
+            else {
+                if (indicesPermutaciones.get(indexer).equals(topesPermutaciones.get(indexer) - 1)) {
+                    indicesPermutaciones.set(indexer, 0);
+                    indexer++;
+                } else {
+                    indicesPermutaciones.set(indexer, indicesPermutaciones.get(indexer) + 1);
+                    topesListos = true;
+                }
+            }
+        }
+
+    }
+
+
 }
