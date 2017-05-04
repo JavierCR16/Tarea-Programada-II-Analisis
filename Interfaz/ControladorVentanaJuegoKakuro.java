@@ -77,14 +77,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 Button botonJuego = new Button();
                 botonJuego.setMaxSize(80,80);
                 matrizJuego.add(botonJuego,i,j,1,1);// i = columna, j=fila
-                matriz.add(botonJuego);/*
-                botonJuego.setOnAction(event -> {
-                    /*
-                    for (int[] ints : tmp) {
-                        Button yh = (Button) buscarNodo(ints[0], ints[1]);
-                        yh.setStyle("-fx-opacity: 1; -fx-base: #550000;");
-                    }
-                });*/
+                matriz.add(botonJuego);
             }
         }
         saveButton.setOnAction(event ->{
@@ -96,25 +89,126 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             hilos=hilosRadio.isSelected();
             forks=forksRadio.isSelected();
             if(hilos && forks){
-                //System.out.println("Resolver Sin paralelo");
-                labelError.setText("Hilos y forks Seleccionados!\nResolviendo con ninguno");
+                labelError.setText("Hilos y forks Seleccionados!");
             }
             else if(hilos){
-                //System.out.println("Resolver con hilos");
                 resolver(false);
                 labelError.setText("Hilos Seleccionados!!");
             }
             else if(forks){
-                //System.out.println("Resolver con Forks");
-                Forks f = new Forks(null, this);
-                f.islas=islasArray;
+                ArrayList<Button> negrosConClave = new ArrayList<>();
+                for (Button negro : negros) {
+                    if(!negro.getText().equals("")){
+                        negrosConClave.add(negro);
+                    }
+                }
+                int[] coordenadas;
+                while(true) {
+                    ArrayList<int[]> isla = new ArrayList<>();
+                    ArrayList<int[]> islaAlrededores = null;
+                    Button primerBlanco = primerBlanco();
+                    if(primerBlanco==null) break;
+                    coordenadas = buscarNodoAux(primerBlanco);
+                    intersecciones(coordenadas[0], coordenadas[1], isla, primerBlanco);
+                    islaAlrededores=pintarBordes(isla);
+                    Islas nueva = new Islas(isla, islaAlrededores);
+                    islasArray.add(nueva);
+                    for (int[] ints : isla) {
+                        Button x = (Button) buscarNodo(ints[0], ints[1]);
+                        x.setText("isla"+islasArray.size());
+                    }
+                }
+                clearBlancos();
+                Forks f = new Forks(islasArray, this, false);
                 ForkJoinPool pool = new ForkJoinPool();
                 pool.invoke(f);
+                for (Button button : negrosConClave) {
+                    coordenadas = buscarNodoAux(button);
+                    String[] texto = button.getText().replace("       ", "").split("\n");
+                    if(!texto[1].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 1)){
+                        //columnaSola
+                        int valorClave=0;
+                        if(!texto[1].equals("1-9")) {
+                            valorClave = Integer.parseInt(texto[1]);
+                            ArrayList<String> permutaciones = new ArrayList<>();
+                            int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 2);
+                            Permutaciones(numeros, "", blancos, 9, permutaciones, valorClave);
+                            printearColumna(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
+                        }
+                        else{
+                            Button actual = (Button) buscarNodo(coordenadas[0]+1, coordenadas[1]);
+                            actual.setText(rand.nextInt(9)+1 +"");
+                        }
+                    }
+                    if (!texto[0].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 2)){
+                        int valorClave=0;
+                        if(!texto[0].equals("1-9")) {
+                            valorClave = Integer.parseInt(texto[0]);
+                            ArrayList<String> permutaciones = new ArrayList<>();
+                            int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 1);
+                            Permutaciones(numeros, "", blancos, 9, permutaciones, valorClave);
+                            printearFila(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
+                        }
+                    }
+                }
                 labelError.setText("Forks Seleccionados!!");
             }
             else{
-                //System.out.println("Resolver sin paralelo");
-                resolver(true);
+                ArrayList<Button> negrosConClave = new ArrayList<>();
+                for (Button negro : negros) {
+                    if(!negro.getText().equals("")){
+                        negrosConClave.add(negro);
+                    }
+                }
+                int[] coordenadas;
+                while(true) {
+                    ArrayList<int[]> isla = new ArrayList<>();
+                    ArrayList<int[]> islaAlrededores = null;
+                    Button primerBlanco = primerBlanco();
+                    if(primerBlanco==null) break;
+                    coordenadas = buscarNodoAux(primerBlanco);
+                    intersecciones(coordenadas[0], coordenadas[1], isla, primerBlanco);
+                    islaAlrededores=pintarBordes(isla);
+                    Islas nueva = new Islas(isla, islaAlrededores);
+                    islasArray.add(nueva);
+                    for (int[] ints : isla) {
+                        Button x = (Button) buscarNodo(ints[0], ints[1]);
+                        x.setText("isla"+islasArray.size());
+                    }
+                }
+                clearBlancos();
+                Forks f = new Forks(islasArray, this, true);
+                ForkJoinPool pool = new ForkJoinPool();
+                pool.invoke(f);
+                for (Button button : negrosConClave) {
+                    coordenadas = buscarNodoAux(button);
+                    String[] texto = button.getText().replace("       ", "").split("\n");
+                    if(!texto[1].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 1)){
+                        //columnaSola
+                        int valorClave=0;
+                        if(!texto[1].equals("1-9")) {
+                            valorClave = Integer.parseInt(texto[1]);
+                            ArrayList<String> permutaciones = new ArrayList<>();
+                            int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 2);
+                            Permutaciones(numeros, "", blancos, 9, permutaciones, valorClave);
+                            printearColumna(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
+                        }
+                        else{
+                            Button actual = (Button) buscarNodo(coordenadas[0]+1, coordenadas[1]);
+                            actual.setText(rand.nextInt(9)+1 +"");
+                        }
+                    }
+                    if (!texto[0].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 2)){
+                        int valorClave=0;
+                        if(!texto[0].equals("1-9")) {
+                            valorClave = Integer.parseInt(texto[0]);
+                            ArrayList<String> permutaciones = new ArrayList<>();
+                            int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 1);
+                            Permutaciones(numeros, "", blancos, 9, permutaciones, valorClave);
+                            printearFila(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
+                        }
+                    }
+                }
                 labelError.setText("Resolviendo con ninguno");
             }
         });
@@ -274,7 +368,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int contador= 0;
         int fila;
         int columna;
-        while(contarCuadros()<=120){
+        while(contarCuadros()<=110){
             fila = rand.nextInt(13-0+1)+0;
             columna = rand.nextInt(13-0+1)+0;
             Button botonJuego = (Button) buscarNodo(fila, columna);
@@ -626,7 +720,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 button.setText(textoAnterior);
             }
         }
-        //clearBlancos();
+        clearBlancos();
     }
 
     public void printearBoton(int valor, Button negro){

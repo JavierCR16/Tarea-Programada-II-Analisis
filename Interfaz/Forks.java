@@ -10,71 +10,60 @@ import java.util.concurrent.RecursiveAction;
  */
 public class Forks extends RecursiveAction {
     Random rand= new Random();
-    public boolean pause = false;
-    public boolean stop = false;
+    private Islas isla;
+    public boolean secuencial = false;
     public ArrayList<Islas> islas;
-    public Islas isla;
     public ControladorVentanaJuegoKakuro controlador;
     public ArrayList<PermutacionPorBoton> permutacionPorBoton;
     public ArrayList<Integer> indicesPermutaciones = new ArrayList<>();
     public ArrayList<Integer> topesPermutaciones = new ArrayList<>();
 
-    public Forks(Islas arg, ControladorVentanaJuegoKakuro control){
-        isla = arg;
+    public Forks(ArrayList<Islas> arg, ControladorVentanaJuegoKakuro control, boolean s){
+        secuencial = s;
+        islas = arg;
         controlador=control;
         permutacionPorBoton = new ArrayList<>();
     }
 
     protected void computeDirectly(){
-        ArrayList<Button> revisarFila = new ArrayList<>();
-        ArrayList<Button> revisarColumna = new ArrayList<>();
-        /*
-        if(i == 1){//FIXME SECUENCIAL
-
-        }
-        else{//FIXME PARALELO
-            stop=true;
-            break;
-        }*/
-        boolean continuar = false;/*
-        for (int[] negro : isla.negros) {
-             continuar = controlador.filaColumnaSola(negro[0], negro[1], 1);
-             if(continuar)
-                 break;
-        }*/
-        if(!continuar) {
-            int cont = 0;
-            for (int[] ints : isla.negros) {
-                Button x = (Button) controlador.buscarNodo(ints[0], ints[1]);
-                filaOcolumna(x, revisarColumna, revisarFila);
-            }
-            genPermutaciones(revisarColumna, 1);
-            genPermutaciones(revisarFila, 0);
-            for (PermutacionPorBoton porBoton : permutacionPorBoton) {
-                for (int[] intersecciones : porBoton.intersecciones) {
-                    Button boton = (Button) controlador.buscarNodo(intersecciones[0], intersecciones[1]);
-                    PermutacionPorBoton x = null;
-                    for (PermutacionPorBoton permutacionPorBoton1 : permutacionPorBoton) {
-                        if(permutacionPorBoton1.boton.equals(boton) && !porBoton.clave){
-                            x = permutacionPorBoton1;
-                            break;
+        for (Islas isla : islas) {
+            System.out.println("Hola desde fork 1");
+            this.isla = isla;
+            ArrayList<Button> revisarFila = new ArrayList<>();
+            ArrayList<Button> revisarColumna = new ArrayList<>();
+            boolean continuar = false;
+            if (!continuar) {
+                int cont = 0;
+                for (int[] ints : isla.negros) {
+                    Button x = (Button) controlador.buscarNodo(ints[0], ints[1]);
+                    filaOcolumna(x, revisarColumna, revisarFila);
+                }
+                genPermutaciones(revisarColumna, 1);
+                genPermutaciones(revisarFila, 0);
+                for (PermutacionPorBoton porBoton : permutacionPorBoton) {
+                    for (int[] intersecciones : porBoton.intersecciones) {
+                        Button boton = (Button) controlador.buscarNodo(intersecciones[0], intersecciones[1]);
+                        PermutacionPorBoton x = null;
+                        for (PermutacionPorBoton permutacionPorBoton1 : permutacionPorBoton) {
+                            if (permutacionPorBoton1.boton.equals(boton) && !porBoton.clave) {
+                                x = permutacionPorBoton1;
+                                break;
+                            }
                         }
+                        if (x != null)
+                            porBoton.compararPerm(x.permutaciones);
                     }
-                    if(x!=null)
-                        porBoton.compararPerm(x.permutaciones);
+                }
+                for (int i = 0; i < permutacionPorBoton.size(); i++) {
+                    indicesPermutaciones.add(0);
+                    topesPermutaciones.add(permutacionPorBoton.get(i).permutaciones.size());
+                }
+                boolean retorno = resolver(permutacionPorBoton, revisarFila);
+                while (!retorno) {
+                    retorno = resolver(permutacionPorBoton, revisarFila);
                 }
             }
-            //genPermutaciones(revisarFila, 0);
-            for(int i =0;i<permutacionPorBoton.size();i++){
-                indicesPermutaciones.add(0);
-                topesPermutaciones.add(permutacionPorBoton.get(i).permutaciones.size());
-            }
-            boolean retorno = resolver(permutacionPorBoton, revisarFila);
-            while (!retorno) {
-                retorno = resolver(permutacionPorBoton, revisarFila);
-            }
         }
-        stop = true;
     }
 
     public void genPermutaciones(ArrayList<Button> revisar, int opcion){//opcion 0 o 1
@@ -111,19 +100,10 @@ public class Forks extends RecursiveAction {
 
     public boolean resolver(ArrayList<PermutacionPorBoton> clase, ArrayList<Button> fila){
         String aux = "";
-
-      /*  for(PermutacionPorBoton instancia : clase){
-            aux+=setPermu(instancia);
-
-      }*/
         for(int i =0;i<clase.size();i++){
             aux+=setPermu(clase.get(i),i);
         }
-
-        //alterarIndicesPermutaciones();
         verificarSiTope();
-
-
         if(isla.permUsadas.contains(aux))
             return false;
         else{
@@ -136,39 +116,28 @@ public class Forks extends RecursiveAction {
     }
 
     public void alterarIndicesPermutaciones(){
-
         int indexer = 0;
         boolean movimientoHecho = false;
         boolean verQuenoHayanMasTopes = false;
-
         while(!movimientoHecho){
-
             while(!verQuenoHayanMasTopes){
                 if(indicesPermutaciones.get(indexer).equals(topesPermutaciones.get(indexer))){
                     indicesPermutaciones.set(indexer,0);
                     indexer++;
                     movimientoHecho=true;
-
                 }
                 else{
                     indicesPermutaciones.set(indexer,indicesPermutaciones.get(indexer)+1);
-
                     movimientoHecho=true;
                     verQuenoHayanMasTopes = true;
                 }
-
             }
-
         }
-
     }
 
     public void verificarSiTope(){
-
         int indexer = 0;
-
         boolean topesListos = false;
-
         while(!topesListos){
             if(indexer==indicesPermutaciones.size()){
                 break;
@@ -183,7 +152,6 @@ public class Forks extends RecursiveAction {
                 }
             }
         }
-
     }
 
     public void filaOcolumna(Button boton, ArrayList<Button> revisarColumna, ArrayList<Button> revisarFila){
@@ -240,15 +208,6 @@ public class Forks extends RecursiveAction {
         return result;
     }
 
-    public int setUno_Nueve(int suma, ArrayList<Integer> valores, int cantidad){
-        int sumaAux = 0;
-        for (int valor : valores) {
-            sumaAux+=valor;
-        }
-
-        return suma-sumaAux;
-    }
-
     public boolean validar(ArrayList<Button> x){
         for (Button button : x) {
             int clave = getClave(button);
@@ -280,15 +239,12 @@ public class Forks extends RecursiveAction {
                 } else if (suma != clave && blancos != cont) {
                     int cantUnoNueve = unoNueves.size();
                     int diferencia = clave - suma;
-
                     String[] elementos = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
                     List<String> elementosArray = new ArrayList<>(Arrays.asList(elementos));
                     elementosArray.removeAll(setteados);
                     String[] nuevosElementos = new String[elementosArray.size()];
                     nuevosElementos = elementosArray.toArray(nuevosElementos);
-
                     ArrayList<String> permutacionesPosibles = new ArrayList<>();
-
                     if (cantUnoNueve != 1) {
                         controlador.Permutaciones(nuevosElementos, "", cantUnoNueve, nuevosElementos.length
                                 , permutacionesPosibles, diferencia);
@@ -315,7 +271,6 @@ public class Forks extends RecursiveAction {
                         }
                         if (!sirvePermutacion)
                             return false;
-
                     } else {
                         int masCercano = 0;
                         if (!elementosArray.contains(diferencia) && diferencia >= 1 && diferencia <= 9) {
@@ -350,11 +305,12 @@ public class Forks extends RecursiveAction {
     }
 
     public void compute(){
-        ArrayList<Forks> caca = new ArrayList<>();
-        for (Islas isla : islas) {
-            Forks nuevo = new Forks(isla, controlador);
-            caca.add(nuevo);
+        if(secuencial){
+            computeDirectly();
         }
-        invokeAll(caca);
+        else{
+             int x = islas.size()/3;
+             ArrayList<Forks> array = new ArrayList<>();
+        }
     }
 }
