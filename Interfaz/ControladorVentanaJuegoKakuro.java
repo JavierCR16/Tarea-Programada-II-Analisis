@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.net.URL;
+import java.util.concurrent.ForkJoinPool;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
@@ -100,21 +101,26 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
             else if(hilos){
                 //System.out.println("Resolver con hilos");
+                resolver(false);
                 labelError.setText("Hilos Seleccionados!!");
             }
             else if(forks){
                 //System.out.println("Resolver con Forks");
+                Forks f = new Forks(null, this);
+                f.islas=islasArray;
+                ForkJoinPool pool = new ForkJoinPool();
+                pool.invoke(f);
                 labelError.setText("Forks Seleccionados!!");
             }
             else{
                 //System.out.println("Resolver sin paralelo");
-                resolver();
+                resolver(true);
                 labelError.setText("Resolviendo con ninguno");
             }
         });
     }
 
-    public void resolver(){
+    public void resolver(boolean secuencial){
         ArrayList<Button> negrosConClave = new ArrayList<>();
         for (Button negro : negros) {
             if(!negro.getText().equals("")){
@@ -140,13 +146,21 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         clearBlancos();
         ArrayList<HilosResolver> hilos = new ArrayList<>();
         int c =0;
-        for (Islas islas : islasArray) {
-            c++;
-            HilosResolver hilo = new HilosResolver(islas, this, c);
-            hilo.run();
-            hilos.add(hilo);
+        if(!secuencial)
+            for (Islas islas : islasArray) {
+                c++;
+                HilosResolver hilo = new HilosResolver(islas, this, 0);
+                hilo.run();
+                hilos.add(hilo);
+            }
+        else{
+            HilosResolver hilo = new HilosResolver(null, this, 1);
+            for (Islas islas : islasArray) {
+                c++;
+                hilo.isla = islas;
+                hilo.run();
+            }
         }
-
         for (Button button : negrosConClave) {
             coordenadas = buscarNodoAux(button);
             String[] texto = button.getText().replace("       ", "").split("\n");
@@ -260,7 +274,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int contador= 0;
         int fila;
         int columna;
-        while(contarCuadros()<=82){
+        while(contarCuadros()<=120){
             fila = rand.nextInt(13-0+1)+0;
             columna = rand.nextInt(13-0+1)+0;
             Button botonJuego = (Button) buscarNodo(fila, columna);

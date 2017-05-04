@@ -1,35 +1,189 @@
 package Interfaz;
 
-import javafx.application.Platform;
 import javafx.scene.control.Button;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.RecursiveAction;
 
 /**
- * Created by Bryan on 4/28/2017.
+ * Created by Bryan on 5/3/2017.
  */
-public class HilosResolver extends Thread {
+public class Forks extends RecursiveAction {
     Random rand= new Random();
     public boolean pause = false;
     public boolean stop = false;
+    public ArrayList<Islas> islas;
     public Islas isla;
-    public int i;
     public ControladorVentanaJuegoKakuro controlador;
-    public ArrayList<PermutacionPorBoton>  permutacionPorBoton;
+    public ArrayList<PermutacionPorBoton> permutacionPorBoton;
     public ArrayList<Integer> indicesPermutaciones = new ArrayList<>();
     public ArrayList<Integer> topesPermutaciones = new ArrayList<>();
 
-
-
-    public HilosResolver(Islas arg, ControladorVentanaJuegoKakuro control, int id){
+    public Forks(Islas arg, ControladorVentanaJuegoKakuro control){
         isla = arg;
         controlador=control;
-        i=id;
         permutacionPorBoton = new ArrayList<>();
+    }
+
+    protected void computeDirectly(){
+        ArrayList<Button> revisarFila = new ArrayList<>();
+        ArrayList<Button> revisarColumna = new ArrayList<>();
+        /*
+        if(i == 1){//FIXME SECUENCIAL
+
+        }
+        else{//FIXME PARALELO
+            stop=true;
+            break;
+        }*/
+        boolean continuar = false;/*
+        for (int[] negro : isla.negros) {
+             continuar = controlador.filaColumnaSola(negro[0], negro[1], 1);
+             if(continuar)
+                 break;
+        }*/
+        if(!continuar) {
+            int cont = 0;
+            for (int[] ints : isla.negros) {
+                Button x = (Button) controlador.buscarNodo(ints[0], ints[1]);
+                filaOcolumna(x, revisarColumna, revisarFila);
+            }
+            genPermutaciones(revisarColumna, 1);
+            genPermutaciones(revisarFila, 0);
+            for (PermutacionPorBoton porBoton : permutacionPorBoton) {
+                for (int[] intersecciones : porBoton.intersecciones) {
+                    Button boton = (Button) controlador.buscarNodo(intersecciones[0], intersecciones[1]);
+                    PermutacionPorBoton x = null;
+                    for (PermutacionPorBoton permutacionPorBoton1 : permutacionPorBoton) {
+                        if(permutacionPorBoton1.boton.equals(boton) && !porBoton.clave){
+                            x = permutacionPorBoton1;
+                            break;
+                        }
+                    }
+                    if(x!=null)
+                        porBoton.compararPerm(x.permutaciones);
+                }
+            }
+            //genPermutaciones(revisarFila, 0);
+            for(int i =0;i<permutacionPorBoton.size();i++){
+                indicesPermutaciones.add(0);
+                topesPermutaciones.add(permutacionPorBoton.get(i).permutaciones.size());
+            }
+            boolean retorno = resolver(permutacionPorBoton, revisarFila);
+            while (!retorno) {
+                retorno = resolver(permutacionPorBoton, revisarFila);
+            }
+        }
+        stop = true;
+    }
+
+    public void genPermutaciones(ArrayList<Button> revisar, int opcion){//opcion 0 o 1
+        String[] x = {"1","2","3","4","5","6","7","8","9"};
+        int blancos = 0;
+        String[] clave;
+        boolean existe;
+        for(Button boton : revisar){
+            ArrayList<String> perm = new ArrayList<>();
+            clave = boton.getText().replace("       ", "").split("\n");
+            int[] coor = controlador.buscarNodoAux(boton);
+            blancos = controlador.verificarBlancos(coor[0], coor[1], opcion+1);
+            controlador.Permutaciones(x, "", blancos, 9, perm, Integer.parseInt(clave[opcion]));
+            PermutacionPorBoton nueva = new PermutacionPorBoton(perm, boton, controlador, opcion);
+            existe = false;
+            for (PermutacionPorBoton porBoton : permutacionPorBoton) {
+                if(porBoton.boton.equals(boton)){
+                    existe = true;
+                    break;
+                }
+            }
+            if(!existe)
+                permutacionPorBoton.add(nueva);
+        }
+    }
+
+    public String setPermu(PermutacionPorBoton x,int posicionBoton){
+        //  int index = rand.nextInt(x.permutaciones.size());
+        String perm = x.permutaciones.get(indicesPermutaciones.get(posicionBoton));
+        int[] coor = controlador.buscarNodoAux(x.boton);
+        controlador.establecerPermutacionACasillasBlancasAbajo(coor[0], coor[1], perm, 2);
+        return perm;
+    }
+
+    public boolean resolver(ArrayList<PermutacionPorBoton> clase, ArrayList<Button> fila){
+        String aux = "";
+
+      /*  for(PermutacionPorBoton instancia : clase){
+            aux+=setPermu(instancia);
+
+      }*/
+        for(int i =0;i<clase.size();i++){
+            aux+=setPermu(clase.get(i),i);
+        }
+
+        //alterarIndicesPermutaciones();
+        verificarSiTope();
+
+
+        if(isla.permUsadas.contains(aux))
+            return false;
+        else{
+            isla.permUsadas.add(aux);
+        }
+        if(!validar(fila)){
+            return false;
+        }
+        return true;
+    }
+
+    public void alterarIndicesPermutaciones(){
+
+        int indexer = 0;
+        boolean movimientoHecho = false;
+        boolean verQuenoHayanMasTopes = false;
+
+        while(!movimientoHecho){
+
+            while(!verQuenoHayanMasTopes){
+                if(indicesPermutaciones.get(indexer).equals(topesPermutaciones.get(indexer))){
+                    indicesPermutaciones.set(indexer,0);
+                    indexer++;
+                    movimientoHecho=true;
+
+                }
+                else{
+                    indicesPermutaciones.set(indexer,indicesPermutaciones.get(indexer)+1);
+
+                    movimientoHecho=true;
+                    verQuenoHayanMasTopes = true;
+                }
+
+            }
+
+        }
+
+    }
+
+    public void verificarSiTope(){
+
+        int indexer = 0;
+
+        boolean topesListos = false;
+
+        while(!topesListos){
+            if(indexer==indicesPermutaciones.size()){
+                break;
+            }
+            else {
+                if (indicesPermutaciones.get(indexer).equals(topesPermutaciones.get(indexer) - 1)) {
+                    indicesPermutaciones.set(indexer, 0);
+                    indexer++;
+                } else {
+                    indicesPermutaciones.set(indexer, indicesPermutaciones.get(indexer) + 1);
+                    topesListos = true;
+                }
+            }
+        }
+
     }
 
     public void filaOcolumna(Button boton, ArrayList<Button> revisarColumna, ArrayList<Button> revisarFila){
@@ -195,167 +349,12 @@ public class HilosResolver extends Thread {
         }
     }
 
-    public void run(){
-        ArrayList<Button> revisarFila = new ArrayList<>();
-        ArrayList<Button> revisarColumna = new ArrayList<>();
-        while(!stop){/*
-            if(i == 1){//FIXME SECUENCIAL
-
-            }
-            else{//FIXME PARALELO
-                stop=true;
-                break;
-            }*/
-            boolean continuar = false;/*
-            for (int[] negro : isla.negros) {
-                 continuar = controlador.filaColumnaSola(negro[0], negro[1], 1);
-                 if(continuar)
-                     break;
-            }*/
-            if(!continuar) {
-                int cont = 0;
-                for (int[] ints : isla.negros) {
-                    Button x = (Button) controlador.buscarNodo(ints[0], ints[1]);
-                    filaOcolumna(x, revisarColumna, revisarFila);
-                }
-                genPermutaciones(revisarColumna, 1);
-                genPermutaciones(revisarFila, 0);
-                for (PermutacionPorBoton porBoton : permutacionPorBoton) {
-                    for (int[] intersecciones : porBoton.intersecciones) {
-                        Button boton = (Button) controlador.buscarNodo(intersecciones[0], intersecciones[1]);
-                        PermutacionPorBoton x = null;
-                        for (PermutacionPorBoton permutacionPorBoton1 : permutacionPorBoton) {
-                            if(permutacionPorBoton1.boton.equals(boton) && !porBoton.clave){
-                                x = permutacionPorBoton1;
-                                break;
-                            }
-                        }
-                        if(x!=null)
-                            porBoton.compararPerm(x.permutaciones);
-                    }
-                }
-                //genPermutaciones(revisarFila, 0);
-                for(int i =0;i<permutacionPorBoton.size();i++){
-                    indicesPermutaciones.add(0);
-                    topesPermutaciones.add(permutacionPorBoton.get(i).permutaciones.size());
-                }
-                boolean retorno = resolver(permutacionPorBoton, revisarFila);
-                while (!retorno) {
-                    retorno = resolver(permutacionPorBoton, revisarFila);
-                }
-                this.stop = true;
-            }
+    public void compute(){
+        ArrayList<Forks> caca = new ArrayList<>();
+        for (Islas isla : islas) {
+            Forks nuevo = new Forks(isla, controlador);
+            caca.add(nuevo);
         }
+        invokeAll(caca);
     }
-
-    public void genPermutaciones(ArrayList<Button> revisar, int opcion){//opcion 0 o 1
-        String[] x = {"1","2","3","4","5","6","7","8","9"};
-        int blancos = 0;
-        String[] clave;
-        boolean existe;
-        for(Button boton : revisar){
-            ArrayList<String> perm = new ArrayList<>();
-            clave = boton.getText().replace("       ", "").split("\n");
-            int[] coor = controlador.buscarNodoAux(boton);
-            blancos = controlador.verificarBlancos(coor[0], coor[1], opcion+1);
-            controlador.Permutaciones(x, "", blancos, 9, perm, Integer.parseInt(clave[opcion]));
-            PermutacionPorBoton nueva = new PermutacionPorBoton(perm, boton, controlador, opcion);
-            existe = false;
-            for (PermutacionPorBoton porBoton : permutacionPorBoton) {
-                if(porBoton.boton.equals(boton)){
-                    existe = true;
-                    break;
-                }
-            }
-            if(!existe)
-                permutacionPorBoton.add(nueva);
-        }
-    }
-
-    public String setPermu(PermutacionPorBoton x,int posicionBoton){
-      //  int index = rand.nextInt(x.permutaciones.size());
-        String perm = x.permutaciones.get(indicesPermutaciones.get(posicionBoton));
-        int[] coor = controlador.buscarNodoAux(x.boton);
-        controlador.establecerPermutacionACasillasBlancasAbajo(coor[0], coor[1], perm, 2);
-        return perm;
-    }
-
-    public boolean resolver(ArrayList<PermutacionPorBoton> clase, ArrayList<Button> fila){
-        String aux = "";
-
-      /*  for(PermutacionPorBoton instancia : clase){
-            aux+=setPermu(instancia);
-
-      }*/
-        for(int i =0;i<clase.size();i++){
-            aux+=setPermu(clase.get(i),i);
-        }
-
-        //alterarIndicesPermutaciones();
-        verificarSiTope();
-
-
-        if(isla.permUsadas.contains(aux))
-            return false;
-        else{
-            isla.permUsadas.add(aux);
-        }
-        if(!validar(fila)){
-            return false;
-        }
-        return true;
-    }
-
-    public void alterarIndicesPermutaciones(){
-
-        int indexer = 0;
-        boolean movimientoHecho = false;
-        boolean verQuenoHayanMasTopes = false;
-
-        while(!movimientoHecho){
-
-            while(!verQuenoHayanMasTopes){
-                if(indicesPermutaciones.get(indexer).equals(topesPermutaciones.get(indexer))){
-                    indicesPermutaciones.set(indexer,0);
-                    indexer++;
-                    movimientoHecho=true;
-
-                }
-                else{
-                    indicesPermutaciones.set(indexer,indicesPermutaciones.get(indexer)+1);
-
-                    movimientoHecho=true;
-                    verQuenoHayanMasTopes = true;
-                }
-
-            }
-
-        }
-
-    }
-
-    public void verificarSiTope(){
-
-        int indexer = 0;
-
-        boolean topesListos = false;
-
-        while(!topesListos){
-            if(indexer==indicesPermutaciones.size()){
-                break;
-            }
-            else {
-                if (indicesPermutaciones.get(indexer).equals(topesPermutaciones.get(indexer) - 1)) {
-                    indicesPermutaciones.set(indexer, 0);
-                    indexer++;
-                } else {
-                    indicesPermutaciones.set(indexer, indicesPermutaciones.get(indexer) + 1);
-                    topesListos = true;
-                }
-            }
-        }
-
-    }
-
-
 }
