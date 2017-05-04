@@ -265,11 +265,18 @@ public class HilosResolver extends Thread {
             aux+=setPermu(instancia);
 
       }*/
+
+    /*  for(int i=0;i<indicesPermutaciones.size();i++){
+          System.out.print(i+",");
+      }*/
+
         for(int i =0;i<clase.size();i++){
             aux+=setPermu(clase.get(i),i);
         }
 
-        alterarIndicesPermutaciones();
+
+
+      //  alterarIndicesPermutaciones();
         verificarSiTope();
 
 

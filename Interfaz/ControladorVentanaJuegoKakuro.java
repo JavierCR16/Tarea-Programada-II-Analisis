@@ -146,9 +146,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             hilo.run();
             hilos.add(hilo);
         }
-        //hilos.get(0).run();
-        //hilos.get(1).run();
-        //hilos.get(2).run();
+
         for (Button button : negrosConClave) {
             coordenadas = buscarNodoAux(button);
             String[] texto = button.getText().replace("       ", "").split("\n");
@@ -262,7 +260,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
         int contador= 0;
         int fila;
         int columna;
-        while(contarCuadros()<=110){
+        while(contarCuadros()<=82){
             fila = rand.nextInt(13-0+1)+0;
             columna = rand.nextInt(13-0+1)+0;
             Button botonJuego = (Button) buscarNodo(fila, columna);
@@ -1064,5 +1062,9 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
             }
         }
         return temp;
+    }
+
+    public void ponerTexto(Button boton, String texto){
+        boton.setText(texto);
     }
 }
