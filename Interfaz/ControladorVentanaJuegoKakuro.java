@@ -47,6 +47,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
     @FXML
     public TextField numParalelos;
 
+    public Islas isla;
+
     Random rand= new Random();
 
     String datosCarga = "";
@@ -96,61 +98,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                 labelError.setText("Hilos Seleccionados!!");
             }
             else if(forks){
-                ArrayList<Button> negrosConClave = new ArrayList<>();
-                for (Button negro : negros) {
-                    if(!negro.getText().equals("")){
-                        negrosConClave.add(negro);
-                    }
-                }
-                int[] coordenadas;
-                while(true) {
-                    ArrayList<int[]> isla = new ArrayList<>();
-                    ArrayList<int[]> islaAlrededores = null;
-                    Button primerBlanco = primerBlanco();
-                    if(primerBlanco==null) break;
-                    coordenadas = buscarNodoAux(primerBlanco);
-                    intersecciones(coordenadas[0], coordenadas[1], isla, primerBlanco);
-                    islaAlrededores=pintarBordes(isla);
-                    Islas nueva = new Islas(isla, islaAlrededores);
-                    islasArray.add(nueva);
-                    for (int[] ints : isla) {
-                        Button x = (Button) buscarNodo(ints[0], ints[1]);
-                        x.setText("isla"+islasArray.size());
-                    }
-                }
-                clearBlancos();
-                Forks f = new Forks(islasArray, this, false);
-                ForkJoinPool pool = new ForkJoinPool();
-                pool.invoke(f);
-                for (Button button : negrosConClave) {
-                    coordenadas = buscarNodoAux(button);
-                    String[] texto = button.getText().replace("       ", "").split("\n");
-                    if(!texto[1].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 1)){
-                        //columnaSola
-                        int valorClave=0;
-                        if(!texto[1].equals("1-9")) {
-                            valorClave = Integer.parseInt(texto[1]);
-                            ArrayList<String> permutaciones = new ArrayList<>();
-                            int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 2);
-                            Permutaciones(numeros, "", blancos, 9, permutaciones, valorClave);
-                            printearColumna(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
-                        }
-                        else{
-                            Button actual = (Button) buscarNodo(coordenadas[0]+1, coordenadas[1]);
-                            actual.setText(rand.nextInt(9)+1 +"");
-                        }
-                    }
-                    if (!texto[0].equals("-") && filaColumnaSola(coordenadas[0], coordenadas[1], 2)){
-                        int valorClave=0;
-                        if(!texto[0].equals("1-9")) {
-                            valorClave = Integer.parseInt(texto[0]);
-                            ArrayList<String> permutaciones = new ArrayList<>();
-                            int blancos = verificarBlancos(coordenadas[0], coordenadas[1], 1);
-                            Permutaciones(numeros, "", blancos, 9, permutaciones, valorClave);
-                            printearFila(coordenadas[0], coordenadas[1], permutaciones.get(0), blancos);
-                        }
-                    }
-                }
+                resolver(false);
                 labelError.setText("Forks Seleccionados!!");
             }
             else{
@@ -177,9 +125,8 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     }
                 }
                 clearBlancos();
-                Forks f = new Forks(islasArray, this, true);
-                ForkJoinPool pool = new ForkJoinPool();
-                pool.invoke(f);
+                ResolverSecuencial re = new ResolverSecuencial(islasArray, this, 0);
+                re.run();
                 for (Button button : negrosConClave) {
                     coordenadas = buscarNodoAux(button);
                     String[] texto = button.getText().replace("       ", "").split("\n");
@@ -1040,10 +987,7 @@ public class ControladorVentanaJuegoKakuro implements Initializable {
                     botonASetear.setText(Character.toString(permutaciones.charAt(contador)));
                     contador++;
                 }
-
         }
-
-
     }
 
     public ArrayList<String> verificarNoRepetidosFila(int fila, int columna, int opcion){

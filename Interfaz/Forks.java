@@ -1,5 +1,6 @@
 package Interfaz;
 
+import com.sun.deploy.config.Platform;
 import javafx.scene.control.Button;
 
 import java.util.*;
@@ -261,7 +262,10 @@ public class Forks extends RecursiveAction {
                             if (sumaTemporal == clave) {
                                 sirvePermutacion = true;
                                 for (int w = 0; w < unoNueves.size(); w++) {
-                                    unoNueves.get(w).setText(permActual[w]);
+                                    Button aux = unoNueves.get(w);
+                                    String s = permActual[w];
+                                    int[] c = controlador.buscarNodoAux(aux);
+
                                 }
                                 break;
                             } else {
@@ -275,7 +279,7 @@ public class Forks extends RecursiveAction {
                         int masCercano = 0;
                         if (!elementosArray.contains(diferencia) && diferencia >= 1 && diferencia <= 9) {
                             masCercano = diferencia;
-                            unoNueves.get(0).setText(diferencia + "");
+                            javafx.application.Platform.runLater(()->{unoNueves.get(0).setText(diferencia + "");});
                         } else
                             return false;
                     }
@@ -309,8 +313,10 @@ public class Forks extends RecursiveAction {
             computeDirectly();
         }
         else{
-             int x = islas.size()/3;
-             ArrayList<Forks> array = new ArrayList<>();
+            int index = islas.size()/2;
+             ArrayList<Islas> array = new ArrayList<>(islas.subList(0, index));
+             ArrayList<Islas> array2 = new ArrayList<>(islas.subList(index, islas.size()));
+             invokeAll(new Forks(array, controlador, false), new Forks(array2, controlador, false), new Forks(array2, controlador, false), new Forks(array2, controlador, false));
         }
     }
 }
